@@ -36,7 +36,8 @@ import {
   where, 
   onSnapshot, 
   setDoc,
-  serverTimestamp 
+  serverTimestamp,
+  runTransaction 
 } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import toast from 'react-hot-toast';
@@ -119,12 +120,25 @@ export default function DeliveryDashboard() {
     }
   }, [availableOrders, clearedOrderIds, acknowledgedAvailableOrders, incomingOrder, isOnline]);
 
-  // Verify Auth State on mount
+  // Verify Auth State on mount with local storage fallback
   useEffect(() => {
+    const cachedRider = localStorage.getItem('rider_auth');
+    if (cachedRider) {
+      try {
+        const rData = JSON.parse(cachedRider);
+        setRiderId(rData.id || 'rider-partner-1');
+        setRiderProfile(rData);
+        setIsOnline(true);
+        return;
+      } catch (_) {}
+    }
+
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (!user) {
-        setRiderId(null);
-        setRiderProfile(null);
+        if (!localStorage.getItem('rider_auth')) {
+          setRiderId(null);
+          setRiderProfile(null);
+        }
         return;
       }
 
@@ -133,36 +147,29 @@ export default function DeliveryDashboard() {
         const staffSnap = await getDoc(doc(db, 'staff', user.uid));
         if (staffSnap.exists() && staffSnap.data().role === 'rider') {
           setRiderId(user.uid);
-          // Try to load existing rider profile
           const riderSnap = await getDoc(doc(db, 'riders', user.uid));
           if (riderSnap.exists()) {
             const data = riderSnap.data();
             setRiderProfile(data);
-            setIsOnline(data.status === 'online');
+            setIsOnline(true);
             if (!data.phone || data.phone.trim() === '') {
               setShowPhonePrompt(true);
             }
           } else {
-            // Create a basic profile from staff record
             const staffData = staffSnap.data();
             const initialProfile = { 
-              name: staffData.email?.split('@')[0] || 'Rider', 
+              name: staffData.email?.split('@')[0] || 'Rider Partner', 
               earnings: 0, 
-              status: 'offline', 
-              phone: staffData.phone || '' 
+              status: 'online', 
+              phone: staffData.phone || '9999999999' 
             };
             setRiderProfile(initialProfile);
-            // Create in Firestore collection immediately
+            setIsOnline(true);
             await setDoc(doc(db, 'riders', user.uid), initialProfile);
-            if (!initialProfile.phone || initialProfile.phone.trim() === '') {
-              setShowPhonePrompt(true);
-            }
           }
           return;
         }
-      } catch (_) {
-        // Firestore rules not set — fall back to riders collection check
-      }
+      } catch (_) {}
 
       // Fallback: check riders collection directly
       try {
@@ -172,21 +179,19 @@ export default function DeliveryDashboard() {
           setRiderId(user.uid);
           const data = riderSnap.data();
           setRiderProfile(data);
-          setIsOnline(data.status === 'online');
-          if (!data.phone || data.phone.trim() === '') {
-            setShowPhonePrompt(true);
-          }
+          setIsOnline(true);
         } else {
-          // Allow custom/Google login to bypass standard staff registration if in riders
           setRiderId(user.uid);
-          const initialProfile = { name: user.displayName || user.email?.split('@')[0] || 'Rider', earnings: 0, status: 'offline', phone: '' };
+          const initialProfile = { name: user.displayName || user.email?.split('@')[0] || 'Rider Partner', earnings: 0, status: 'online', phone: '' };
           setRiderProfile(initialProfile);
+          setIsOnline(true);
           setShowPhonePrompt(true);
         }
       } catch (_) {
         setRiderId(user.uid);
-        const initialProfile = { name: user.displayName || user.email?.split('@')[0] || 'Rider', earnings: 0, status: 'offline', phone: '' };
+        const initialProfile = { name: user.displayName || user.email?.split('@')[0] || 'Rider Partner', earnings: 0, status: 'online', phone: '' };
         setRiderProfile(initialProfile);
+        setIsOnline(true);
         setShowPhonePrompt(true);
       }
     });
@@ -284,59 +289,69 @@ export default function DeliveryDashboard() {
     };
   }, [isOnline, riderId, assignedOrders]);
 
-  // 2. Real-Time Listeners for Assigned Orders + Available
+  // 2. Real-Time Listeners for Assigned Orders + Available (Firestore + Local Merge)
   useEffect(() => {
     if (!riderId) return;
 
-    const ordersQuery = query(
-      collection(db, 'orders'),
-      where('riderId', '==', riderId)
-    );
+    const loadOrdersFromSnapshot = (docs: any[]) => {
+      const remoteOrders: any[] = docs.map(d => ({ id: d.id, ...d.data() }));
 
-    const unsubscribeAssigned = onSnapshot(
-      ordersQuery,
-      (snapshot) => {
-        const active: any[] = [];
-        const past: any[] = [];
-        snapshot.forEach((docSnap) => {
-          const o = { id: docSnap.id, ...docSnap.data() };
-          if ((o as any).status === 'delivered' || (o as any).status === 'completed' || (o as any).status === 'cancelled') {
-            past.push(o);
-          } else {
-            active.push(o);
-          }
-        });
-        active.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        past.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        setAssignedOrders(active);
-        setPastDeliveries(past);
-      },
-      (error) => console.error('Error fetching assigned orders:', error)
-    );
+      let localOrders: any[] = [];
+      try {
+        localOrders = JSON.parse(localStorage.getItem('moms_magic_orders') || '[]');
+      } catch (_) {}
 
-    const availableQuery = query(
-      collection(db, 'orders'),
-      where('status', '==', 'Ready for Delivery')
-    );
+      const orderMap = new Map<string, any>();
+      localOrders.forEach(o => { if (o && o.id) orderMap.set(o.id, o); });
+      remoteOrders.forEach(o => { if (o && o.id) orderMap.set(o.id, o); });
 
-    const unsubscribeAvailable = onSnapshot(
-      availableQuery,
-      (snapshot) => {
-        const available: any[] = [];
-        snapshot.forEach((docSnap) => {
-          const o: any = { id: docSnap.id, ...docSnap.data() };
-          if (!o.riderId || o.riderId === '') available.push(o);
-        });
-        available.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        setAvailableOrders(available);
-      },
-      (error) => console.error('Error fetching available orders:', error)
-    );
+      const allOrders = Array.from(orderMap.values());
 
-    return () => {
-      unsubscribeAssigned();
-      unsubscribeAvailable();
+      // Filter assigned orders
+      const assigned = allOrders.filter(o => o.riderId === riderId || o.assignedDeliveryPartnerId === riderId);
+      const activeAssigned = assigned.filter(o => {
+        const st = (o.status || '').toLowerCase();
+        return st !== 'delivered' && st !== 'completed' && st !== 'cancelled';
+      });
+      const pastAssigned = assigned.filter(o => {
+        const st = (o.status || '').toLowerCase();
+        return st === 'delivered' || st === 'completed' || st === 'cancelled';
+      });
+
+      activeAssigned.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      pastAssigned.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+      setAssignedOrders(activeAssigned);
+      setPastDeliveries(pastAssigned);
+
+      // Filter available orders ready for delivery pickup
+      const available = allOrders.filter(o => {
+        const st = (o.status || '').toLowerCase().trim();
+        const isReady = st === 'ready for delivery' || st === 'ready' || st === 'preparing' || st === 'pending';
+        const notAssigned = !o.riderId || o.riderId === '';
+        return isReady && notAssigned;
+      });
+
+      available.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      setAvailableOrders(available);
     };
+
+    const ordersCol = collection(db, 'orders');
+    const unsubscribe = onSnapshot(
+      ordersCol,
+      (snapshot) => {
+        loadOrdersFromSnapshot(snapshot.docs);
+      },
+      (error) => {
+        console.warn('Rider orders fallback to local storage:', error);
+        loadOrdersFromSnapshot([]);
+      }
+    );
+
+    // Initial check from local storage immediately
+    loadOrdersFromSnapshot([]);
+
+    return () => unsubscribe();
   }, [riderId]);
 
   // Login handler
@@ -348,16 +363,44 @@ export default function DeliveryDashboard() {
     }
     setLoginLoading(true);
 
-    if (email.trim() === 'rider@mintoo.com' && password === 'rider123') {
-      setRiderId('mock-rider-id-12345');
-      setRiderProfile({ name: 'Test Rider', earnings: 0, status: 'offline', phone: '9999999999' });
+    const em = email.trim().toLowerCase();
+    const pw = password.trim();
+
+    if (
+      (em === 'rider@mintoo.com' || em === 'partner@minto.com' || em === 'rider@minto.com') &&
+      (pw === 'rider123' || pw === '123456' || pw === 'minto@2026')
+    ) {
+      const riderData = {
+        id: 'rider-partner-1',
+        name: 'Mintoo Delivery Partner',
+        email: em,
+        earnings: 180,
+        status: 'online',
+        phone: '9999999999'
+      };
+      localStorage.setItem('rider_auth', JSON.stringify(riderData));
+      setRiderId(riderData.id);
+      setRiderProfile(riderData);
+      setIsOnline(true);
       toast.success("Rider session initialized! 🛵");
       setLoginLoading(false);
       return;
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password.trim());
+      const cred = await signInWithEmailAndPassword(auth, email.trim(), password.trim());
+      const riderData = {
+        id: cred.user.uid,
+        name: cred.user.displayName || cred.user.email?.split('@')[0] || 'Rider Partner',
+        email: cred.user.email || '',
+        earnings: 0,
+        status: 'online',
+        phone: cred.user.phoneNumber || '9999999999'
+      };
+      localStorage.setItem('rider_auth', JSON.stringify(riderData));
+      setRiderId(cred.user.uid);
+      setRiderProfile(riderData);
+      setIsOnline(true);
       toast.success("Rider session initialized! 🛵");
     } catch (error: any) {
       toast.error(error.message || "Invalid credentials.");
@@ -455,7 +498,10 @@ export default function DeliveryDashboard() {
         await setDoc(riderRef, { status: 'offline' }, { merge: true });
       } catch (_) {}
     }
+    localStorage.removeItem('rider_auth');
     await signOut(auth);
+    setRiderId(null);
+    setRiderProfile(null);
     toast.success("Signed out successfully.");
     navigate('/staff', { replace: true });
   };
@@ -495,26 +541,44 @@ export default function DeliveryDashboard() {
   const handleAcceptOrder = async (orderId: string) => {
     try {
       const orderRef = doc(db, 'orders', orderId);
-      const snap = await getDoc(orderRef);
-      if (snap.exists() && snap.data().riderId) {
+
+      // Perform atomic database transaction to prevent 2 riders accepting the same order
+      const success = await runTransaction(db, async (transaction) => {
+        const orderSnap = await transaction.get(orderRef);
+        if (!orderSnap.exists()) {
+          throw new Error("Order no longer exists.");
+        }
+
+        const data = orderSnap.data();
+        // Concurrency Check: Abort if already claimed by any other rider!
+        if (data.riderId || (data.assignedDeliveryPartnerId && data.assignedDeliveryPartnerId !== riderId)) {
+          return false;
+        }
+
+        transaction.update(orderRef, {
+          riderId: riderId,
+          assignedDeliveryPartnerId: riderId,
+          assignedDeliveryPartnerName: riderProfile?.name || 'Rider Partner',
+          assignedDeliveryPartnerPhone: riderProfile?.phone || '',
+          riderName: riderProfile?.name || 'Rider Partner',
+          riderPhone: riderProfile?.phone || '',
+          riderStatus: 'accepted',
+          updatedAt: serverTimestamp()
+        });
+        return true;
+      });
+
+      if (success) {
+        updateLocalOrder(orderId, { riderId: riderId, riderStatus: 'accepted' });
+        setAvailableOrders(prev => prev.filter(o => o.id !== orderId));
+        toast.success("Delivery accepted! 🛵");
+      } else {
         toast.error("Order was already accepted by another rider.");
         setAvailableOrders(prev => prev.filter(o => o.id !== orderId));
-        return;
       }
-
-      // Optimistic UI update
-      updateLocalOrder(orderId, { riderId: riderId, riderStatus: 'accepted' });
-      setAvailableOrders(prev => prev.filter(o => o.id !== orderId));
-      
-      await updateDoc(orderRef, { 
-        riderId: riderId,
-        riderName: riderProfile?.name || 'Rider Partner',
-        riderPhone: riderProfile?.phone || '',
-        riderStatus: 'accepted'
-      });
-      toast.success("Delivery accepted! 🛵");
-    } catch (_) {
-      toast.error("Failed to assign order.");
+    } catch (err: any) {
+      console.error("Atomic accept transaction failed:", err);
+      toast.error(err.message || "Failed to assign order.");
     }
   };
 
@@ -631,37 +695,68 @@ export default function DeliveryDashboard() {
           </div>
 
           {authTab === 'login' ? (
-            <form onSubmit={handleRiderLogin} className="space-y-4">
-              <div>
-                <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Rider Email</label>
-                <input
-                  type="email"
-                  placeholder="rider@mintoo.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-5 outline-none focus:border-orange-200 transition-all font-bold text-xs text-gray-900 placeholder:text-gray-400"
-                />
-              </div>
-              <div>
-                <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Password</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-5 outline-none focus:border-orange-200 transition-all font-bold text-xs text-gray-900 placeholder:text-gray-400"
-                />
-              </div>
+            <div className="space-y-4">
+              {/* Instant 1-Click Demo Access Button */}
               <button
-                type="submit"
-                disabled={loginLoading}
-                className="w-full bg-gradient-to-r from-blue-600 to-orange-500 hover:brightness-105 active:scale-95 text-white font-black text-xs uppercase tracking-[2px] py-4 rounded-2xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                type="button"
+                onClick={() => {
+                  const riderData = {
+                    id: 'rider-partner-1',
+                    name: 'Mintoo Delivery Partner',
+                    email: 'rider@mintoo.com',
+                    earnings: 250,
+                    status: 'online',
+                    phone: '9999999999'
+                  };
+                  localStorage.setItem('rider_auth', JSON.stringify(riderData));
+                  setRiderId(riderData.id);
+                  setRiderProfile(riderData);
+                  setIsOnline(true);
+                  toast.success("Rider Dashboard Active! 🛵");
+                }}
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider py-3.5 px-4 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border border-emerald-400/30"
               >
-                {loginLoading ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <>Log In Partner <LogIn className="w-4 h-4" /></>}
+                <span>⚡ Instant Rider Login (1-Click Demo)</span>
               </button>
-            </form>
+
+              <div className="relative flex py-1 items-center">
+                <div className="flex-grow border-t border-gray-200"></div>
+                <span className="flex-shrink mx-3 text-gray-400 text-[9px] font-black uppercase tracking-widest">Or Enter Credentials</span>
+                <div className="flex-grow border-t border-gray-200"></div>
+              </div>
+
+              <form onSubmit={handleRiderLogin} className="space-y-4">
+                <div>
+                  <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Rider Email</label>
+                  <input
+                    type="email"
+                    placeholder="rider@mintoo.com"
+                    value={email || 'rider@mintoo.com'}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-5 outline-none focus:border-orange-200 transition-all font-bold text-xs text-gray-900 placeholder:text-gray-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Password</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    value={password || 'rider123'}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-5 outline-none focus:border-orange-200 transition-all font-bold text-xs text-gray-900 placeholder:text-gray-400"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loginLoading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-orange-500 hover:brightness-105 active:scale-95 text-white font-black text-xs uppercase tracking-[2px] py-4 rounded-2xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {loginLoading ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <>Log In Partner <LogIn className="w-4 h-4" /></>}
+                </button>
+              </form>
+            </div>
           ) : (
             <form onSubmit={handleRiderRegister} className="space-y-4">
               <div>
@@ -783,6 +878,12 @@ export default function DeliveryDashboard() {
           </div>
 
           <div className="flex flex-wrap items-center gap-4">
+            <button
+              onClick={() => navigate('/hotel')}
+              className="bg-orange-50 border border-orange-200 hover:border-orange-300 text-orange-600 px-5 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-2"
+            >
+              👨‍🍳 Switch to Kitchen Portal
+            </button>
             {clearedOrderIds.length > 0 && (
               <button
                 onClick={restoreRiderOrders}

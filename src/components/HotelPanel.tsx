@@ -397,7 +397,13 @@ export default function HotelPanel() {
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => navigate('/rider')}
+              className="bg-blue-50 border border-blue-200 hover:border-blue-300 text-blue-600 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-2"
+            >
+              🛵 Switch to Rider Portal
+            </button>
             {clearedOrderIds.length > 0 && (
               <button
                 onClick={restoreClearedOrders}
