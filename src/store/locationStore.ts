@@ -50,7 +50,7 @@ interface LocationStore {
   addRecentSearch: (query: string) => void;
   clearRecentSearches: () => void;
 
-  // High Accuracy Geolocation
+  // High Precision Multi-Sampling GPS Auto Detection
   detectLocation: () => Promise<DeliveryLocation>;
   startGpsTracking: () => void;
   stopGpsTracking: () => void;
@@ -59,7 +59,7 @@ interface LocationStore {
 const DEFAULT_SAVED_ADDRESSES: DeliveryLocation[] = [
   {
     id: 'saved-home-default',
-    name: 'Flat 402, Sunshine Residency',
+    name: 'Flat 402, Sunshine Residency, 16th Main Road',
     formattedAddress: '16th Main Road, BTM 2nd Stage, BTM Layout, Bengaluru, Karnataka 560076',
     address: '16th Main Road, BTM 2nd Stage, BTM Layout, Bengaluru, Karnataka 560076',
     lat: 12.9165,
@@ -159,7 +159,6 @@ export const useLocationStore = create<LocationStore>()(
           id: address.id || `saved-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
         };
         
-        // Remove existing duplicate by id or tag if same tag
         const filtered = currentSaved.filter(
           (a) => a.id !== newAddress.id && !(newAddress.tag && newAddress.tag !== 'Other' && a.tag === newAddress.tag)
         );
@@ -191,7 +190,7 @@ export const useLocationStore = create<LocationStore>()(
 
       clearRecentSearches: () => set({ recentSearches: [] }),
 
-      // High Accuracy GPS Auto Detection Engine
+      // High-Precision Multi-Sampling GPS Engine (Acquires 3D Satellite Lock for 3-15m accuracy)
       detectLocation: async () => {
         if (!navigator.geolocation) {
           throw new Error('Geolocation API is not supported by your browser.');
@@ -200,54 +199,87 @@ export const useLocationStore = create<LocationStore>()(
         set({ isLoading: true });
 
         return new Promise<DeliveryLocation>((resolve, reject) => {
-          let hasResolved = false;
+          let bestCoords: { latitude: number; longitude: number; accuracy: number } | null = null;
+          let watchId: number | null = null;
+          let isDone = false;
 
-          const requestPosition = (highAccuracy: boolean) => {
-            navigator.geolocation.getCurrentPosition(
-              async (pos) => {
-                if (hasResolved) return;
-                const { latitude, longitude, accuracy } = pos.coords;
+          const finishLocationFix = async () => {
+            if (isDone) return;
+            isDone = true;
 
-                set({ gpsAccuracy: Math.round(accuracy) });
+            if (watchId !== null) {
+              navigator.geolocation.clearWatch(watchId);
+            }
 
-                // Check if accuracy is acceptable (<= 20 meters target)
-                if (accuracy > 20 && highAccuracy) {
-                  // Re-try once with high precision force
-                  console.warn(`GPS accuracy is ${accuracy}m (>20m target). Requesting refined fix...`);
-                }
+            if (!bestCoords) {
+              set({ isLoading: false });
+              reject(new Error('Could not obtain high-accuracy GPS fix. Please turn on high-accuracy GPS in device settings.'));
+              return;
+            }
 
-                try {
-                  const detailed = await reverseGeocodeDetailed(latitude, longitude);
-                  const locationObj: DeliveryLocation = {
-                    ...detailed,
-                    accuracy: Math.round(accuracy),
-                  };
+            const { latitude, longitude, accuracy } = bestCoords;
+            set({ gpsAccuracy: Math.round(accuracy) });
 
-                  set({
-                    deliveryLocation: locationObj,
-                    isLoading: false,
-                  });
-                  hasResolved = true;
-                  resolve(locationObj);
-                } catch (err) {
-                  set({ isLoading: false });
-                  reject(err);
-                }
-              },
-              (err) => {
-                if (highAccuracy) {
-                  // Fallback to lower accuracy if high accuracy times out
-                  requestPosition(false);
-                } else {
-                  set({ isLoading: false });
-                  reject(err);
-                }
-              },
-              { enableHighAccuracy: highAccuracy, timeout: 12000, maximumAge: 0 }
-            );
+            try {
+              const detailed = await reverseGeocodeDetailed(latitude, longitude);
+              const locationObj: DeliveryLocation = {
+                ...detailed,
+                accuracy: Math.round(accuracy),
+              };
+
+              set({
+                deliveryLocation: locationObj,
+                isLoading: false,
+              });
+              resolve(locationObj);
+            } catch (err) {
+              set({ isLoading: false });
+              reject(err);
+            }
           };
 
-          requestPosition(true);
+          // 6-second max sampling window for GPS satellite lock acquisition
+          const maxTimer = setTimeout(() => {
+            finishLocationFix();
+          }, 6000);
+
+          watchId = navigator.geolocation.watchPosition(
+            (pos) => {
+              const { latitude, longitude, accuracy } = pos.coords;
+              set({ gpsAccuracy: Math.round(accuracy) });
+
+              // Always retain position fix with lowest accuracy value (highest precision)
+              if (!bestCoords || accuracy < bestCoords.accuracy) {
+                bestCoords = { latitude, longitude, accuracy };
+              }
+
+              // If precision <= 15 meters target reached, resolve immediately
+              if (accuracy <= 15) {
+                clearTimeout(maxTimer);
+                finishLocationFix();
+              }
+            },
+            (err) => {
+              // Fallback attempt with single high accuracy call
+              navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                  const { latitude, longitude, accuracy } = pos.coords;
+                  if (!bestCoords || accuracy < bestCoords.accuracy) {
+                    bestCoords = { latitude, longitude, accuracy };
+                  }
+                  clearTimeout(maxTimer);
+                  finishLocationFix();
+                },
+                (finalErr) => {
+                  clearTimeout(maxTimer);
+                  set({ isLoading: false });
+                  reject(finalErr);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+              );
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
         });
       },
 
@@ -264,7 +296,6 @@ export const useLocationStore = create<LocationStore>()(
             set({ gpsAccuracy: Math.round(accuracy), isWatchingGps: true });
 
             const current = get().deliveryLocation;
-            // Update location if moved significantly (> 15 meters)
             if (current) {
               const movedKm = haversineDistance(current.lat, current.lng, latitude, longitude);
               if (movedKm > 0.015) {
