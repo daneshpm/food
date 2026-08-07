@@ -488,16 +488,18 @@ export default function TrackingPage() {
   useEffect(() => {
     if (!order) return;
 
-    if (order.status === 'delivered') {
+    const currentStatus = String(order.status || '').toLowerCase();
+
+    if (currentStatus === 'delivered' || currentStatus === 'completed') {
       setRemainingSeconds(0);
       return;
     }
 
     // Determine base initial duration based on order status
     let initialSecs = 1500; // 25 mins base
-    if (order.status === 'Preparing') initialSecs = 1200; // 20 mins
-    if (order.status === 'Ready for Delivery') initialSecs = 720; // 12 mins
-    if (order.status === 'Out For Delivery') initialSecs = 480; // 8 mins
+    if (currentStatus.includes('prep') || currentStatus.includes('accept')) initialSecs = 1200; // 20 mins
+    if (currentStatus.includes('ready')) initialSecs = 720; // 12 mins
+    if (currentStatus.includes('out') || currentStatus.includes('picked') || currentStatus.includes('assign')) initialSecs = 480; // 8 mins
 
     // Calculate distance factor if rider coordinates exist
     if (rider?.currentLocation?.lat && order.deliveryLocation?.lat) {
