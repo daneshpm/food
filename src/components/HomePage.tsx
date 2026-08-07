@@ -304,13 +304,18 @@ export default function HomePage() {
           {/* Location Row */}
           <div 
             onClick={() => openLocationPicker()}
-            className="flex items-center gap-1.5 cursor-pointer w-max mt-1"
+            className="flex items-center gap-2 cursor-pointer w-max mt-1 bg-white/10 hover:bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full transition-all border border-white/15"
           >
-            <MapPin className="w-5 h-5 text-[#39B54A] fill-[#39B54A]/25" />
-            <span className="text-sm font-bold text-white truncate max-w-[200px] flex items-center gap-1">
-              {deliveryLocation ? deliveryLocation.address.split(',')[0] : 'Bangalore'}
-              <ChevronRight className="w-4 h-4 text-white rotate-90" />
-            </span>
+            <MapPin className="w-4 h-4 text-[#39B54A] fill-[#39B54A]/25 shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="text-xs font-black text-white truncate max-w-[200px] flex items-center gap-1">
+                {deliveryLocation ? deliveryLocation.name : '16th Main Rd, BTM 2nd Stage'}
+                <ChevronRight className="w-3.5 h-3.5 text-white/80 rotate-90 shrink-0" />
+              </span>
+              <span className="text-[9px] text-[#39B54A] font-extrabold">
+                {deliveryLocation?.distance !== undefined ? `${deliveryLocation.distance} km from BTM Metro Gate B` : 'BTM Metro Gate B'}
+              </span>
+            </div>
           </div>
         </div>
 

@@ -121,6 +121,7 @@ export const useLocationStore = create<LocationStore>()(
         const formatted = location.formattedAddress || location.address || location.name || 'Selected Address';
         const isDeliverable = location.isDeliverable ?? isBTMServiceable(formatted, location.lat, location.lng);
         const name = location.name || formatted.split(',')[0] || 'Selected Address';
+        const distFromGateB = location.distance ?? parseFloat(haversineDistance(BTM_CENTER.lat, BTM_CENTER.lng, location.lat, location.lng).toFixed(2));
         
         const fullObj: DeliveryLocation = {
           name,
@@ -133,7 +134,8 @@ export const useLocationStore = create<LocationStore>()(
           country: location.country || 'India',
           postalCode: location.postalCode || '560076',
           category: location.category || 'landmark',
-          distance: location.distance ?? parseFloat(haversineDistance(BTM_CENTER.lat, BTM_CENTER.lng, location.lat, location.lng).toFixed(2)),
+          distance: distFromGateB,
+          distanceFromBtmMetroGateB: distFromGateB,
           isDeliverable,
           ...location
         };

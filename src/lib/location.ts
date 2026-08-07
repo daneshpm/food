@@ -4,32 +4,39 @@
 
 export interface DetailedAddress {
   id?: string;
-  name: string;
-  formattedAddress: string;
+  name: string; // Swiggy/Zomato style display header (e.g., "16th Main Rd, BTM 2nd Stage")
+  formattedAddress: string; // Full address string
   address: string; // Alias for formattedAddress
   lat: number;
   lng: number;
-  houseNumber?: string;
-  floor?: string;
-  apartment?: string;
-  landmark?: string;
-  road?: string;
-  suburb?: string;
+  houseNumber?: string; // Door / Flat / House No
+  floor?: string; // Floor / Block
+  apartment?: string; // Building / PG / Villa Name
+  landmark?: string; // Nearby landmark
+  road?: string; // Main / Cross / Street
+  suburb?: string; // Area / Locality / Suburb
   city: string;
   state: string;
   country: string;
   postalCode: string;
   category: 'apartment' | 'villa' | 'pg' | 'shop' | 'landmark' | 'street' | 'business' | 'other';
-  distance?: number; // in km
+  distance?: number; // km from BTM Metro Gate B
+  distanceFromBtmMetroGateB?: number; // km from BTM Metro Gate B
   isDeliverable: boolean;
   accuracy?: number; // GPS precision in meters
-  tag?: 'Home' | 'Work' | 'Other';
+  tag?: 'Home' | 'Work' | 'PG / Hostel' | 'Other';
   instructions?: string;
 }
 
-// BTM Layout Center Coordinates (16th Main Road, BTM 2nd Stage)
-export const BTM_CENTER = { lat: 12.9165, lng: 77.6101 };
-export const MAX_BTM_RANGE = 4.5; // km radius for primary fast delivery zone
+// BTM Layout Metro Station Gate B Base Location (Hotel/Kitchen reference)
+export const BTM_METRO_GATE_B = {
+  lat: 12.916575,
+  lng: 77.610116,
+  name: 'BTM Layout Metro Station Gate B'
+};
+
+export const BTM_CENTER = BTM_METRO_GATE_B;
+export const MAX_BTM_RANGE = 5.0; // 5.0 km radius for primary fast delivery zone
 
 // ═══════════════════════════════════════════════════════════════
 // HAVERSINE DISTANCE FORMULA (KM)
@@ -50,26 +57,25 @@ export function haversineDistance(lat1: number, lon1: number, lat2: number, lon2
 
 // Check if location or address is in BTM Layout / Service area
 export function isBTMServiceable(address: string, lat: number, lng: number): boolean {
-  if (!address) {
-    const dist = haversineDistance(BTM_CENTER.lat, BTM_CENTER.lng, lat, lng);
-    return dist <= MAX_BTM_RANGE;
+  const dist = haversineDistance(BTM_METRO_GATE_B.lat, BTM_METRO_GATE_B.lng, lat, lng);
+  if (dist <= MAX_BTM_RANGE) return true;
+
+  if (address) {
+    const addrLower = address.toLowerCase();
+    return (
+      addrLower.includes('btm') || 
+      addrLower.includes('btm layout') || 
+      addrLower.includes('btm 1st') || 
+      addrLower.includes('btm 2nd') || 
+      addrLower.includes('btm stage') ||
+      addrLower.includes('kuvempu') ||
+      addrLower.includes('silk board') ||
+      addrLower.includes('madiwala') ||
+      addrLower.includes('koramangala') ||
+      addrLower.includes('hsr')
+    );
   }
-
-  const addrLower = address.toLowerCase();
-  const containsBTM = 
-    addrLower.includes('btm') || 
-    addrLower.includes('btm layout') || 
-    addrLower.includes('btm 1st') || 
-    addrLower.includes('btm 2nd') || 
-    addrLower.includes('btm stage') ||
-    addrLower.includes('kuvempu nagar') ||
-    addrLower.includes('silk board') ||
-    addrLower.includes('madiwala') ||
-    addrLower.includes('koramangala') ||
-    addrLower.includes('hsr');
-
-  const dist = haversineDistance(BTM_CENTER.lat, BTM_CENTER.lng, lat, lng);
-  return containsBTM || dist <= MAX_BTM_RANGE;
+  return false;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -105,7 +111,7 @@ function determineCategory(props: any): DetailedAddress['category'] {
   if (name.includes('villa') || name.includes('enclave') || name.includes('row house')) {
     return 'villa';
   }
-  if (osmKey === 'shop' || osmKey === 'amenity' && ['restaurant', 'cafe', 'fast_food', 'pharmacy', 'bank'].includes(osmValue) || name.includes('store') || name.includes('supermarket') || name.includes('mall')) {
+  if (osmKey === 'shop' || (osmKey === 'amenity' && ['restaurant', 'cafe', 'fast_food', 'pharmacy', 'bank'].includes(osmValue)) || name.includes('store') || name.includes('supermarket') || name.includes('mall')) {
     return 'shop';
   }
   if (osmKey === 'tourism' || osmKey === 'historic' || osmValue === 'park' || name.includes('bridge') || name.includes('circle') || name.includes('junction') || name.includes('gate')) {
@@ -132,10 +138,9 @@ export async function searchAddresses(
   const trimmed = query.trim();
   if (!trimmed || trimmed.length < 2) return [];
 
-  const refLat = userLat || BTM_CENTER.lat;
-  const refLng = userLng || BTM_CENTER.lng;
+  const refLat = userLat || BTM_METRO_GATE_B.lat;
+  const refLng = userLng || BTM_METRO_GATE_B.lng;
 
-  // Local Bangalore Alias Map for instant partial searches
   const aliasLower = trimmed.toLowerCase();
   let searchStr = trimmed;
   if (!aliasLower.includes('bengaluru') && !aliasLower.includes('bangalore')) {
@@ -144,7 +149,7 @@ export async function searchAddresses(
 
   const results: DetailedAddress[] = [];
 
-  // 1. Try Photon API by Komoot (supports location proximity lat/lon bias)
+  // 1. Try Photon API by Komoot
   try {
     const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(trimmed)}&lat=${refLat}&lon=${refLng}&limit=12&lang=en`;
     const res = await fetchWithRetry(photonUrl, { signal });
@@ -157,7 +162,6 @@ export async function searchAddresses(
           const lon = coords[0];
           const lat = coords[1];
 
-          const title = props.name || props.street || props.district || props.city || trimmed;
           const road = props.street || props.name || '';
           const suburb = props.district || props.suburb || props.locality || 'Bengaluru';
           const city = props.city || props.county || 'Bengaluru';
@@ -165,10 +169,12 @@ export async function searchAddresses(
           const country = props.country || 'India';
           const postalCode = props.postcode || '';
 
+          const title = road && suburb ? `${road}, ${suburb}` : props.name || road || suburb || trimmed;
+
           const parts = [props.name, props.housenumber, props.street, props.district, props.city, props.state, props.postcode].filter(Boolean);
           const formattedAddress = parts.length > 0 ? Array.from(new Set(parts)).join(', ') : `${title}, Bengaluru`;
 
-          const distance = haversineDistance(refLat, refLng, lat, lon);
+          const distFromMetroGateB = parseFloat(haversineDistance(BTM_METRO_GATE_B.lat, BTM_METRO_GATE_B.lng, lat, lon).toFixed(2));
           const isDeliverable = isBTMServiceable(formattedAddress, lat, lon);
           const category = determineCategory(props);
 
@@ -187,7 +193,8 @@ export async function searchAddresses(
             country,
             postalCode,
             category,
-            distance: parseFloat(distance.toFixed(2)),
+            distance: distFromMetroGateB,
+            distanceFromBtmMetroGateB: distFromMetroGateB,
             isDeliverable,
           });
         }
@@ -198,7 +205,7 @@ export async function searchAddresses(
     console.warn('Photon API fetch error, trying Nominatim fallback:', err);
   }
 
-  // 2. Fallback to OpenStreetMap Nominatim if Photon yields few results
+  // 2. Fallback to OpenStreetMap Nominatim
   if (results.length < 3) {
     try {
       const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchStr)}&limit=8&addressdetails=1&lat=${refLat}&lon=${refLng}`;
@@ -210,8 +217,8 @@ export async function searchAddresses(
           const lon = parseFloat(item.lon);
           const addr = item.address || {};
           
-          const title = item.display_name.split(',')[0];
           const houseNumber = addr.house_number || addr.building || '';
+          const apartment = addr.building || addr.amenity || addr.shop || '';
           const road = addr.road || addr.pedestrian || addr.footway || '';
           const suburb = addr.suburb || addr.neighbourhood || addr.residential || '';
           const city = addr.city || addr.town || addr.municipality || 'Bengaluru';
@@ -219,7 +226,8 @@ export async function searchAddresses(
           const country = addr.country || 'India';
           const postalCode = addr.postcode || '';
 
-          const distance = haversineDistance(refLat, refLng, lat, lon);
+          const title = road && suburb ? `${road}, ${suburb}` : item.display_name.split(',')[0];
+          const distFromMetroGateB = parseFloat(haversineDistance(BTM_METRO_GATE_B.lat, BTM_METRO_GATE_B.lng, lat, lon).toFixed(2));
           const isDeliverable = isBTMServiceable(item.display_name, lat, lon);
           const category = determineCategory({ name: title, ...addr });
 
@@ -231,6 +239,7 @@ export async function searchAddresses(
             lat,
             lng: lon,
             houseNumber,
+            apartment,
             road,
             suburb,
             city,
@@ -238,21 +247,19 @@ export async function searchAddresses(
             country,
             postalCode,
             category,
-            distance: parseFloat(distance.toFixed(2)),
+            distance: distFromMetroGateB,
+            distanceFromBtmMetroGateB: distFromMetroGateB,
             isDeliverable,
           });
         }
       }
     } catch (err: any) {
       if (err.name === 'AbortError') throw err;
-      console.warn('Nominatim fallback failed:', err);
+      console.warn('Nominatim search failed:', err);
     }
   }
 
-  // Rank nearby results first (Proximity Weighting)
   results.sort((a, b) => (a.distance || 0) - (b.distance || 0));
-
-  // Deduplicate results
   return deduplicateAddresses(results);
 }
 
@@ -282,60 +289,10 @@ export function deduplicateAddresses(addresses: DetailedAddress[]): DetailedAddr
 // DETAILED REVERSE GEOCODING (LAT/LNG TO STRUCTURED ADDRESS)
 // ═══════════════════════════════════════════════════════════════
 export async function reverseGeocodeDetailed(lat: number, lng: number): Promise<DetailedAddress> {
-  const distToBtm = haversineDistance(BTM_CENTER.lat, BTM_CENTER.lng, lat, lng);
-  const isNearBtm = distToBtm <= MAX_BTM_RANGE;
+  const distFromMetroGateB = parseFloat(haversineDistance(BTM_METRO_GATE_B.lat, BTM_METRO_GATE_B.lng, lat, lng).toFixed(2));
+  const isNearBtm = distFromMetroGateB <= MAX_BTM_RANGE;
 
-  let result: Partial<DetailedAddress> = {
-    lat,
-    lng,
-    city: 'Bengaluru',
-    state: 'Karnataka',
-    country: 'India',
-    postalCode: '560076',
-    category: 'landmark',
-    distance: parseFloat(distToBtm.toFixed(2)),
-    isDeliverable: isBTMServiceable('', lat, lng),
-  };
-
-  // 1. Try BigDataCloud Client Geocoder API
-  try {
-    const bdcRes = await fetchWithRetry(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
-    );
-    if (bdcRes.ok) {
-      const bdcData = await bdcRes.json();
-      const informatives = bdcData.localityInfo?.informative || [];
-      const subLocalityObj = informatives.find((i: any) =>
-        i.name && (
-          i.name.toLowerCase().includes('btm') ||
-          i.name.toLowerCase().includes('stage') ||
-          i.name.toLowerCase().includes('layout') ||
-          i.name.toLowerCase().includes('road') ||
-          i.name.toLowerCase().includes('cross') ||
-          i.name.toLowerCase().includes('main')
-        )
-      );
-
-      const roadOrSub = subLocalityObj?.name || bdcData.locality || bdcData.city || '';
-      result.suburb = roadOrSub;
-      result.city = bdcData.city || 'Bengaluru';
-      result.postalCode = bdcData.postcode || '560076';
-
-      if (isNearBtm) {
-        const detailPart = (roadOrSub && !roadOrSub.toLowerCase().includes('btm') && !roadOrSub.toLowerCase().includes('bengaluru'))
-          ? `${roadOrSub}, `
-          : '';
-        result.name = roadOrSub || 'BTM Layout';
-        result.formattedAddress = `${detailPart}BTM Layout, Bengaluru, Karnataka ${result.postalCode}`;
-        result.address = result.formattedAddress;
-        return result as DetailedAddress;
-      }
-    }
-  } catch (err) {
-    console.warn('BigDataCloud reverse geocode failed, using Nominatim:', err);
-  }
-
-  // 2. Try Nominatim Reverse Geocoding
+  // 1. Try High-Resolution OpenStreetMap Nominatim Reverse Geocoding first
   try {
     const nomRes = await fetchWithRetry(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
@@ -345,19 +302,75 @@ export async function reverseGeocodeDetailed(lat: number, lng: number): Promise<
       const data = await nomRes.json();
       if (data && data.address) {
         const addr = data.address;
-        const houseNo = addr.house_number || addr.building || addr.office || '';
-        const road = addr.road || addr.pedestrian || addr.footway || addr.path || '';
-        const suburb = addr.suburb || addr.neighbourhood || addr.residential || addr.quarter || '';
+        const houseNo = addr.house_number || addr.building || addr.office || addr.amenity || addr.shop || '';
+        const apartment = addr.building || addr.amenity || addr.shop || addr.complex || '';
+        const road = addr.road || addr.pedestrian || addr.footway || addr.path || addr.street || '';
+        const suburb = addr.suburb || addr.neighbourhood || addr.residential || addr.quarter || addr.subdistrict || (isNearBtm ? 'BTM Layout' : 'Bengaluru');
         const city = addr.city || addr.town || addr.municipality || 'Bengaluru';
         const state = addr.state || 'Karnataka';
         const country = addr.country || 'India';
         const postalCode = addr.postcode || '560076';
 
-        const name = houseNo || road || suburb || 'Detected Pin Location';
-        const formatted = data.display_name;
+        // Build Swiggy / Zomato style main title (e.g. "16th Main Road, BTM 2nd Stage")
+        let placeMain = '';
+        if (road && suburb && road.toLowerCase() !== suburb.toLowerCase()) {
+          placeMain = `${road}, ${suburb}`;
+        } else if (road) {
+          placeMain = road;
+        } else if (suburb) {
+          placeMain = suburb;
+        } else {
+          placeMain = data.display_name.split(',')[0] || 'Detected Location';
+        }
+
+        const addressParts = [houseNo, apartment, road, suburb, city, postalCode].filter(Boolean);
+        const formatted = Array.from(new Set(addressParts)).join(', ') || data.display_name;
 
         return {
-          name,
+          name: placeMain,
+          formattedAddress: formatted,
+          address: formatted,
+          lat,
+          lng,
+          houseNumber: houseNo,
+          apartment,
+          road,
+          suburb,
+          city,
+          state,
+          country,
+          postalCode,
+          category: determineCategory({ name: placeMain, ...addr }),
+          distance: distFromMetroGateB,
+          distanceFromBtmMetroGateB: distFromMetroGateB,
+          isDeliverable: isBTMServiceable(formatted, lat, lng),
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Nominatim reverse geocode failed, trying Photon fallback:', err);
+  }
+
+  // 2. Try Photon Reverse Geocoding
+  try {
+    const photonRes = await fetchWithRetry(
+      `https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`
+    );
+    if (photonRes.ok) {
+      const data = await photonRes.json();
+      if (data && data.features && data.features.length > 0) {
+        const props = data.features[0].properties || {};
+        const houseNo = props.housenumber || '';
+        const road = props.street || props.name || '';
+        const suburb = props.district || props.suburb || props.locality || (isNearBtm ? 'BTM Layout' : 'Bengaluru');
+        const city = props.city || 'Bengaluru';
+        const postalCode = props.postcode || '560076';
+
+        let placeMain = road && suburb ? `${road}, ${suburb}` : road || suburb || props.name || 'Selected Location';
+        const formatted = [houseNo, road, suburb, city, postalCode].filter(Boolean).join(', ');
+
+        return {
+          name: placeMain,
           formattedAddress: formatted,
           address: formatted,
           lat,
@@ -366,17 +379,18 @@ export async function reverseGeocodeDetailed(lat: number, lng: number): Promise<
           road,
           suburb,
           city,
-          state,
-          country,
+          state: 'Karnataka',
+          country: 'India',
           postalCode,
-          category: determineCategory({ name, ...addr }),
-          distance: parseFloat(distToBtm.toFixed(2)),
+          category: determineCategory(props),
+          distance: distFromMetroGateB,
+          distanceFromBtmMetroGateB: distFromMetroGateB,
           isDeliverable: isBTMServiceable(formatted, lat, lng),
         };
       }
     }
   } catch (err) {
-    console.warn('Nominatim reverse geocode failed:', err);
+    console.warn('Photon reverse geocode failed:', err);
   }
 
   // Default fallback
@@ -385,7 +399,7 @@ export async function reverseGeocodeDetailed(lat: number, lng: number): Promise<
     : 'Bengaluru, Karnataka, India';
 
   return {
-    name: isNearBtm ? 'BTM 2nd Stage' : 'Bengaluru',
+    name: isNearBtm ? '16th Main Rd, BTM 2nd Stage' : 'Bengaluru',
     formattedAddress: fallbackFormatted,
     address: fallbackFormatted,
     lat,
@@ -397,7 +411,8 @@ export async function reverseGeocodeDetailed(lat: number, lng: number): Promise<
     country: 'India',
     postalCode: '560076',
     category: 'landmark',
-    distance: parseFloat(distToBtm.toFixed(2)),
+    distance: distFromMetroGateB,
+    distanceFromBtmMetroGateB: distFromMetroGateB,
     isDeliverable: isBTMServiceable(fallbackFormatted, lat, lng),
   };
 }

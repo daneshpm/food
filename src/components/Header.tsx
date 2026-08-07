@@ -42,13 +42,18 @@ export default function Header() {
             <div className="hidden md:flex flex-col text-left pl-4 border-l border-gray-200">
               <button 
                 onClick={openLocationPicker}
-                className="flex items-center gap-1 text-sm font-semibold text-gray-900 hover:text-orange-600 transition-colors outline-none group"
+                className="flex items-center gap-1.5 text-xs font-extrabold text-gray-900 hover:text-emerald-600 transition-colors outline-none group"
               >
-                <MapPin className="w-4 h-4 text-orange-500" />
-                <span className="truncate max-w-[200px]">
-                  {deliveryLocation ? deliveryLocation.address : 'BTM Layout, Bangalore'}
-                </span>
-                <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+                <div className="flex flex-col text-left">
+                  <span className="truncate max-w-[220px] font-extrabold text-xs text-gray-900 group-hover:text-emerald-600">
+                    {deliveryLocation ? deliveryLocation.name : '16th Main Rd, BTM 2nd Stage'}
+                  </span>
+                  <span className="text-[10px] text-gray-500 font-bold">
+                    {deliveryLocation?.distance !== undefined ? `${deliveryLocation.distance} km from BTM Metro Gate B` : 'BTM Metro Station Gate B'}
+                  </span>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-emerald-600 transition-colors ml-1" />
               </button>
             </div>
           </div>

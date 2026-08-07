@@ -3,7 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Crosshair, MapPin, Loader2, CheckCircle2, AlertTriangle, Compass, Navigation } from 'lucide-react';
 import { useLocationStore, DeliveryLocation } from '../store/locationStore';
-import { reverseGeocodeDetailed, haversineDistance, BTM_CENTER } from '../lib/location';
+import { reverseGeocodeDetailed, haversineDistance, BTM_CENTER, BTM_METRO_GATE_B } from '../lib/location';
 import toast from 'react-hot-toast';
 
 interface AddressMapPickerProps {
@@ -244,10 +244,11 @@ export default function AddressMapPicker({ initialLat, initialLng, onConfirmPin 
               {/* Detailed Geo Specs Pill */}
               {pinAddress && (
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-[10px] text-gray-500 font-mono">
+                  <span className="text-emerald-700 font-bold font-sans">
+                    {haversineDistance(BTM_METRO_GATE_B.lat, BTM_METRO_GATE_B.lng, currentCoords.lat, currentCoords.lng).toFixed(2)} km from BTM Metro Gate B
+                  </span>
                   <span>Lat: {currentCoords.lat.toFixed(5)}</span>
                   <span>Lng: {currentCoords.lng.toFixed(5)}</span>
-                  {pinAddress.postalCode && <span>Pin: {pinAddress.postalCode}</span>}
-                  {pinAddress.city && <span>City: {pinAddress.city}</span>}
                 </div>
               )}
             </div>

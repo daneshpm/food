@@ -719,12 +719,15 @@ export default function Checkout() {
             {deliveryLocation ? (
               <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-4">
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
-                  <p className="text-gray-900 font-bold text-sm leading-relaxed">{deliveryLocation.address}</p>
+                  <MapPin className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div className="flex flex-col text-left">
+                    <span className="font-extrabold text-sm text-gray-900">{deliveryLocation.name}</span>
+                    <p className="text-gray-600 font-medium text-xs leading-relaxed mt-0.5">{deliveryLocation.address}</p>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <div className="px-3 py-1.5 bg-gray-50 rounded-lg text-[10px] font-black uppercase text-gray-500 border border-gray-200">
-                    {distanceKm} KM
+                  <div className="px-3 py-1.5 bg-emerald-50 text-emerald-800 rounded-lg text-[10px] font-black uppercase border border-emerald-200">
+                    📍 {distanceKm} KM from BTM Metro Gate B
                   </div>
                   <div className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border bg-orange-500/10 text-orange-500 border-orange-500/20">
                     ₹{deliveryCharge} Delivery
