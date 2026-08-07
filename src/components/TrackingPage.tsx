@@ -467,11 +467,12 @@ export default function TrackingPage() {
 
   // 2. Listen to Rider changes
   useEffect(() => {
-    if (!order || !order.riderId || order.riderId === '') {
+    const effectiveRiderId = order?.riderId || order?.assignedDeliveryPartnerId;
+    if (!order || !effectiveRiderId) {
       return;
     }
 
-    const riderDocRef = doc(db, 'riders', order.riderId);
+    const riderDocRef = doc(db, 'riders', effectiveRiderId);
     const unsubscribeRider = onSnapshot(riderDocRef, (docSnap) => {
       if (docSnap.exists()) {
         setRider(docSnap.data());
