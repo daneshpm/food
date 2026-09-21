@@ -22,17 +22,17 @@ const SEARCH_PLACEHOLDERS = [
 
 const BANNER_SLIDES = [
   {
-    image: "/hero_banner1.jpg",
+    image: "/images/hero_banner1.jpg",
     search: "Burger",
     category: "Burgers"
   },
   {
-    image: "/hero_banner2.jpg",
+    image: "/images/hero_banner2.jpg",
     search: "Paneer",
     category: "Main Course"
   },
   {
-    image: "/hero_banner3.jpg",
+    image: "/images/hero_banner3.jpg",
     search: "Noodle",
     category: "Noodles"
   }
@@ -76,16 +76,16 @@ export default function HomePage() {
   // Dynamic Categories Memoized from Firestore menuItems with high quality local fallbacks
   const CATEGORIES = useMemo(() => {
     const CATEGORY_IMAGES: Record<string, string> = {
-      "All Dishes": "/chicken_biryani_new.png",
-      "Fast Food": "/masala_papad.png",
-      "Rice & Noodles": "/chicken_fried_rice.png",
-      "Biryani": "/chicken_biryani_new.png",
-      "Starters": "/chicken_65.png",
-      "Veg / Gravy": "/palak_paneer.jpg",
-      "Roti": "/butter_naan.png",
-      "Burgers & Rolls": "/mini_burger_combo.jpg",
-      "Pizzas & Momos": "/fried_momos.png",
-      "Drinks": "/butterscotch_shake_user.png"
+      "All Dishes": "/images/chicken_biryani_new.jpg",
+      "Fast Food": "/images/masala_papad.jpg",
+      "Rice & Noodles": "/images/chicken_fried_rice.jpg",
+      "Biryani": "/images/chicken_biryani_new.jpg",
+      "Starters": "/images/chicken_65.jpg",
+      "Veg / Gravy": "/images/palak_paneer.jpg",
+      "Roti": "/images/butter_naan.jpg",
+      "Burgers & Rolls": "/images/mini_burger_combo.jpg",
+      "Pizzas & Momos": "/images/fried_momos.jpg",
+      "Drinks": "/images/butterscotch_shake_user.jpg"
     };
 
     const uniqueCats = Array.from(new Set(menuItems.map(item => item.category)));
@@ -94,7 +94,7 @@ export default function HomePage() {
       return {
         name: cat,
         id: cat,
-        image: CATEGORY_IMAGES[cat] || firstItem?.image || "/chicken_biryani_new.png"
+        image: CATEGORY_IMAGES[cat] || firstItem?.image || "/images/chicken_biryani_new.jpg"
       };
     });
     return [

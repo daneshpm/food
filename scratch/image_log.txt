@@ -1,3 +1,0 @@
-// This tool doesn't support writing binary files from images in the prompt directly.
-// I will instead find a high-quality replacement URL or assume the user will provide the path.
-// However, I can use a very similar high-quality image from a CDN for now to show the effect.

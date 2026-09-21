@@ -9,15 +9,15 @@ import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
 const CATEGORY_HEROES: Record<string, string> = {
-  "Biryani": "/chicken_biryani_new.png",
-  "Fast Food": "/masala_papad.png",
-  "Rice & Noodles": "/chicken_fried_rice.png",
-  "Starters": "/chicken_65.png",
-  "Veg / Gravy": "/palak_paneer.jpg",
-  "Roti": "/butter_naan.png",
-  "Burgers & Rolls": "/mini_burger_combo.jpg",
-  "Pizzas & Momos": "/fried_momos.png",
-  "Drinks": "/butterscotch_shake_user.png"
+  "Biryani": "/images/chicken_biryani_new.jpg",
+  "Fast Food": "/images/masala_papad.jpg",
+  "Rice & Noodles": "/images/chicken_fried_rice.jpg",
+  "Starters": "/images/chicken_65.jpg",
+  "Veg / Gravy": "/images/palak_paneer.jpg",
+  "Roti": "/images/butter_naan.jpg",
+  "Burgers & Rolls": "/images/mini_burger_combo.jpg",
+  "Pizzas & Momos": "/images/fried_momos.jpg",
+  "Drinks": "/images/butterscotch_shake_user.jpg"
 };
 
 export default function CategoryPage() {
@@ -67,7 +67,7 @@ export default function CategoryPage() {
 
   const heroImage = useMemo(() => {
     if (!categoryId) return '';
-    return CATEGORY_HEROES[categoryId] || "/chicken_biryani_new.png";
+    return CATEGORY_HEROES[categoryId] || "/images/chicken_biryani_new.jpg";
   }, [categoryId]);
 
   if (isLoading) {

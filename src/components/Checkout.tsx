@@ -18,7 +18,6 @@ import { haversineDistance, isBTMServiceable } from '../lib/location';
 import { Capacitor } from '@capacitor/core';
 import { checkIsOnline, useNetworkStatus } from '../utils/network';
 
-import DeliveryAnimation from './DeliveryAnimation';
 import { sendTelegramOrderNotification } from '../utils/telegram';
 
 const WHATSAPP_BULK_NUMBER = '917483187572';

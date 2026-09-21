@@ -71,6 +71,7 @@ export default defineConfig(({mode}) => {
               req.on('end', () => {
                 try {
                   const data = JSON.parse(body);
+                  const { email = '', password = '' } = data;
                   const adminEmail = process.env.ADMIN_EMAIL || '';
                   const adminPassword = process.env.ADMIN_PASSWORD || '';
                   const adminToken = process.env.ADMIN_AUTH_TOKEN || 'admin-authenticated-token';
