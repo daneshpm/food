@@ -112,7 +112,7 @@ export default function FoodInfoPage() {
   return (
     <div className="min-h-screen bg-[#080808] pb-28 text-white select-none text-left animate-fadeIn">
       {/* Top Floating Navbar */}
-      <div className="sticky top-0 z-40 bg-[#080808]/90 backdrop-blur-md border-b border-white/5 px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-40 bg-[#080808]/98 border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => {
             playSound(SOUNDS.CLICK);

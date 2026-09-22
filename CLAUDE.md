@@ -66,6 +66,12 @@ Same dual-path pattern in `Checkout.tsx`: web `checkout.razorpay.com/v1/checkout
 - `index.html` has an inline script that unregisters all service workers and clears all caches on every page load - deliberate (per commit history: "WebView ServiceWorker cache purging for instant APK/AAB updates"), needed to stop old Android WebView installs getting stuck on stale cached content. It does mean the PWA's offline-caching benefit is largely self-defeating on repeat visits; don't "fix" this without understanding why it was added.
 - `AdminPage.tsx` has a "greetings" feature (king/queen/anonymous dialogue lines, stored in `localStorage`) - cosmetic personalization text shown somewhere in the customer UI, not a bug, just unusual naming if you're grepping around.
 
+### Scroll performance
+
+Same root cause as the sibling repo's scroll-jank fix: `backdrop-filter`/`backdrop-blur-*` on a `fixed`/`sticky` element forces the browser to re-sample it on every scroll frame, because native scroll compositing is cheap and blur isn't. Fixed on the four elements that stay on screen *while* content scrolls beneath them: `Header.tsx`, `BottomCartBar.tsx`, `Checkout.tsx`'s bottom CTA bar, and `FoodInfoPage.tsx`'s sticky header. Left alone: every other `backdrop-blur` usage in this codebase is on a modal/overlay (`fixed inset-0` dialogs, popups, toasts) - those pay the blur cost once when they open, not on every scroll frame, so they were never the actual problem. If scroll still feels slow after this, profile before reaching for Lenis/GSAP - they solve a different problem (custom easing/inertia), not compositing cost, and would add more per-frame JS work on top of whatever's actually slow.
+
+Also added `loading="lazy"` to the repeated product-image `<img>` tags in `HomePage.tsx` and `CategoryPage.tsx` (the menu/category grids) - none of them had it, meaning every image on the page loaded eagerly regardless of scroll position. Left the hero banner and category icon strip eager (above the fold, small fixed count).
+
 ## Known issues
 
 Fixed 2026-09-22 (see Upgrade log for detail): the `HotelLogin.tsx` plaintext-password pattern (plus a second, worse copy of it found embedded in `HotelPanel.tsx` with a hardcoded 16-combination login backdoor), the `admin_auth`/`hotel_auth` localStorage bypasses, and the fail-open role checks.
@@ -90,6 +96,8 @@ Still open:
 - **Image tooling**: `sharp` powers `scripts/optimize-images.mjs` and `scripts/generate-icons.mjs`
 
 ## Upgrade log
+
+- **2026-09-22 (2)** — Scroll performance: removed `backdrop-blur` from the four persistent (fixed/sticky) elements that stayed on screen during scroll - `Header.tsx`, `BottomCartBar.tsx`, `Checkout.tsx`'s bottom bar, `FoodInfoPage.tsx`'s sticky header - same root cause as the sibling repo's earlier fix, left every modal/popup's blur untouched since those only pay the cost once on open. Added `loading="lazy"` to the repeated menu/category grid images in `HomePage.tsx`/`CategoryPage.tsx`, which had no lazy-loading at all. See the new "Scroll performance" section above for the reasoning and what was deliberately left alone.
 
 - **2026-09-22** — Fixed the two most severe findings from the 2026-09-21 audit (see Known issues above for current state):
   - New `api/_firebaseAdmin.cjs`, `api/login.cjs` (replaces `api/login.js`), `api/hotel-auth.cjs`. All three security-critical fixes below depend on these establishing real Firebase Auth sessions server-side.

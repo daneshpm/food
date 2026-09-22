@@ -1291,7 +1291,7 @@ export default function Checkout() {
           )}
 
           {/* Sticky Bottom Place Order Bar for Mobile & Desktop CTA */}
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#121212]/95 backdrop-blur-md border-t border-gray-800/80 z-50 shadow-[0_-10px_25px_rgba(0,0,0,0.5)] md:relative md:bg-transparent md:border-none md:p-0 md:shadow-none">
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#121212]/95 border-t border-gray-800/80 z-50 shadow-[0_-10px_25px_rgba(0,0,0,0.5)] md:relative md:bg-transparent md:border-none md:p-0 md:shadow-none">
             <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
               <div className="md:hidden text-left">
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">

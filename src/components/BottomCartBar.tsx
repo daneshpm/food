@@ -30,7 +30,7 @@ export default function BottomCartBar() {
           {/* Luxury Ambient Glow */}
           <div className="absolute inset-0 bg-[#39B54A]/5 blur-[80px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           
-          <div className="relative bg-[#121212]/95 backdrop-blur-xl rounded-3xl md:rounded-[40px] p-3 md:p-5 flex items-center justify-between border border-white/10 shadow-lg overflow-hidden">
+          <div className="relative bg-[#121212]/95 rounded-3xl md:rounded-[40px] p-3 md:p-5 flex items-center justify-between border border-white/10 shadow-lg overflow-hidden">
             {/* Shimmer Effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#39B54A]/5 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
             

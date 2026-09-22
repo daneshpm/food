@@ -575,10 +575,11 @@ export default function HomePage() {
             >
               {/* Square Image container */}
               <div className="w-full aspect-square relative overflow-hidden bg-neutral-900 shrink-0">
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  loading="lazy"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
 
                 {/* Fast Delivery & Fresh & Hot Badge Overlay */}
@@ -681,9 +682,10 @@ export default function HomePage() {
             >
               {/* Image Container with Badges */}
               <div className="w-full aspect-[4/3] relative overflow-hidden bg-neutral-900 shrink-0">
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                 />
 
