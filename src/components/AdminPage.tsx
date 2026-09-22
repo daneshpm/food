@@ -20,7 +20,6 @@ import {
   FolderOpen,
   Edit,
   Sparkles,
-  Eye,
   EyeOff,
   RotateCcw
 } from 'lucide-react';
@@ -100,8 +99,7 @@ export default function AdminPage() {
   const [newHotelLocation, setNewHotelLocation] = useState('');
   const [newHotelPrice, setNewHotelPrice] = useState('');
   const [newHotelEmail, setNewHotelEmail] = useState('hotel1@minto.com');
-  const [newHotelPassword, setNewHotelPassword] = useState('minto@2026');
-  const [showHotelPasswords, setShowHotelPasswords] = useState<Record<string, boolean>>({});
+  const [newHotelPassword, setNewHotelPassword] = useState('');
   const [isAddingHotel, setIsAddingHotel] = useState(false);
   
   // Drawer states
@@ -143,21 +141,18 @@ export default function AdminPage() {
     toast.success("Cleared orders restored!");
   };
 
-  // Check Firebase Auth + role
+  // Check Firebase Auth + role. Trusts only a real, server-verified Firebase
+  // Auth session (established by api/login.cjs after credential
+  // verification) - no client-side localStorage bypass, and no longer
+  // fails open on a lookup error (a Firestore read failure now denies
+  // access instead of granting it).
   useEffect(() => {
-    if (localStorage.getItem('admin_auth') === 'true') {
-      setAdminId('hardcoded-admin');
-      setChecking(false);
-      return;
-    }
-
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setChecking(false);
         navigate('/staff', { replace: true });
         return;
       }
-      // Check role in Firestore staff collection
       try {
         const snap = await getDoc(doc(db, 'staff', user.uid));
         if (snap.exists() && snap.data().role === 'admin') {
@@ -167,8 +162,11 @@ export default function AdminPage() {
           await signOut(auth);
           navigate('/staff', { replace: true });
         }
-      } catch (_) {
-        setAdminId(user.uid);
+      } catch (err) {
+        console.error('Admin role verification failed:', err);
+        toast.error('Could not verify access. Please log in again.');
+        await signOut(auth);
+        navigate('/staff', { replace: true });
       }
       setChecking(false);
     });
@@ -288,6 +286,10 @@ export default function AdminPage() {
       toast.error('All fields are required. Please select/create a category.');
       return;
     }
+    if (!newHotelPassword.trim() || newHotelPassword.trim().length < 6) {
+      toast.error('A password of at least 6 characters is required - there is no default password anymore.');
+      return;
+    }
 
     const hotelId = `hotel-${emailToAssign.split('@')[0]}`;
     const existingIndex = hotels.findIndex(h => h.email.toLowerCase() === emailToAssign.toLowerCase());
@@ -299,7 +301,6 @@ export default function AdminPage() {
       location: newHotelLocation.trim(),
       price: Number(newHotelPrice),
       email: emailToAssign,
-      password: newHotelPassword.trim() || 'minto@2026',
       createdAt: new Date().toISOString()
     };
 
@@ -355,11 +356,29 @@ export default function AdminPage() {
 
     setIsAddingHotel(true);
     try {
-      // 1. Save Hotel config to Firestore
+      // 1. Save Hotel config to Firestore (password is NOT included here -
+      // it's set separately below via a secured endpoint that hashes it
+      // server-side, rather than ever being written to Firestore in plain
+      // text the way it used to be)
       await setDoc(doc(db, 'hotels', hotelId), newHotel);
-      
+
       // 2. Sync to Menu Items collection so customer can order it
       await setDoc(doc(db, 'menu', menuProductId), menuProduct);
+
+      // 3. Set the kitchen's login password (hashed server-side)
+      const adminToken = localStorage.getItem('moms_magic_admin_token');
+      const passwordRes = await fetch('/api/hotel-auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
+        },
+        body: JSON.stringify({ mode: 'set-password', hotelId, password: newHotelPassword.trim() }),
+      });
+      const passwordData = await passwordRes.json().catch(() => ({ success: false }));
+      if (!passwordRes.ok || !passwordData.success) {
+        toast.error(passwordData.message || "Hotel saved, but setting its login password failed - set it again from here.");
+      }
 
       toast.success('Hotel registered and Menu Item added successfully! 🎉');
       setNewHotelName('');
@@ -383,6 +402,34 @@ export default function AdminPage() {
       setNewHotelEmail('hotel1@minto.com');
     } finally {
       setIsAddingHotel(false);
+    }
+  };
+
+  const handleResetHotelPassword = async (hotelId: string) => {
+    const newPassword = window.prompt('New password for this kitchen (min 6 characters):');
+    if (newPassword === null) return; // cancelled
+    if (newPassword.trim().length < 6) {
+      toast.error('Password must be at least 6 characters.');
+      return;
+    }
+    try {
+      const adminToken = localStorage.getItem('moms_magic_admin_token');
+      const res = await fetch('/api/hotel-auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
+        },
+        body: JSON.stringify({ mode: 'set-password', hotelId, password: newPassword.trim() }),
+      });
+      const data = await res.json().catch(() => ({ success: false }));
+      if (!res.ok || !data.success) {
+        toast.error(data.message || 'Failed to reset password.');
+        return;
+      }
+      toast.success('Password reset. Share it with the kitchen directly - it is not stored anywhere readable.');
+    } catch (err) {
+      toast.error('Failed to reset password.');
     }
   };
 
@@ -546,7 +593,11 @@ export default function AdminPage() {
             email: editHotelEmail.trim()
           });
         } else {
-          // If mapping was broken/missing, recreate it
+          // If mapping was broken/missing, recreate it. No password field -
+          // this kitchen has no login until a password is set for it via
+          // POST /api/hotel-auth {mode:'set-password', hotelId, password}
+          // (hashed server-side, never written here in plain text). There's
+          // no password-reset button in this UI yet.
           await setDoc(doc(db, 'hotels', hotelId), {
             id: hotelId,
             name: "Kitchen Partner",
@@ -554,7 +605,6 @@ export default function AdminPage() {
             location: "Indiranagar",
             price: Number(editPrice),
             email: editHotelEmail.trim(),
-            password: 'minto@2026',
             createdAt: new Date().toISOString()
           });
         }
@@ -1105,15 +1155,15 @@ export default function AdminPage() {
                             <p className="truncate sm:col-span-2 flex items-center gap-2">
                               <strong className="font-bold text-gray-800">Password:</strong>
                               <span className="font-mono bg-gray-200 px-2 py-0.5 rounded text-xs font-bold text-gray-900">
-                                {showHotelPasswords[hotel.id] ? (hotel.password || 'kitchen123') : '••••••••'}
+                                (hidden - hashed server-side, not stored or shown in plain text)
                               </span>
                               <button
                                 type="button"
-                                onClick={() => setShowHotelPasswords(prev => ({ ...prev, [hotel.id]: !prev[hotel.id] }))}
+                                onClick={() => handleResetHotelPassword(hotel.id)}
                                 className="text-gray-500 hover:text-orange-500 transition-colors p-1 cursor-pointer"
-                                title="Toggle Password Visibility"
+                                title="Reset Password"
                               >
-                                {showHotelPasswords[hotel.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                                <RotateCcw className="w-3.5 h-3.5" />
                               </button>
                             </p>
                           </div>

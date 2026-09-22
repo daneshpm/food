@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LogIn, Eye, EyeOff, ShieldCheck, Settings } from 'lucide-react';
+import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase';
 import toast from 'react-hot-toast';
 import { useSEO } from '../utils/seo';
 
@@ -15,9 +17,13 @@ export default function StaffLogin() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('admin_auth') === 'true') {
-      navigate('/admin');
-    }
+    // Only a real Firebase Auth session gets a returning admin skipped
+    // straight to /admin - AdminPage.tsx verifies the staff role itself
+    // regardless, this is just a UX shortcut, not the security boundary.
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) navigate('/admin');
+    });
+    return unsub;
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -35,16 +41,26 @@ export default function StaffLogin() {
       });
       const data = await response.json();
 
-      if (response.ok && data.success) {
-        localStorage.setItem('admin_auth', 'true');
-        if (data.token) {
-          localStorage.setItem('moms_magic_admin_token', data.token);
-        }
-        toast.success(`Welcome back, Admin! Redirecting... 👑`);
-        setTimeout(() => navigate('/admin'), 800);
-      } else {
+      if (!response.ok || !data.success) {
         toast.error(data.message || 'Invalid admin credentials.');
+        return;
       }
+
+      if (!data.customToken) {
+        toast.error('Admin login is not fully configured on the server yet (Firebase Admin credentials missing) - contact the system administrator.');
+        return;
+      }
+
+      // Establishes a real, verifiable Firebase Auth session - AdminPage.tsx
+      // checks staff/{uid}.role === 'admin' against this, rather than the
+      // previous approach of trusting an unverified localStorage flag that
+      // anyone could set themselves from the browser console.
+      await signInWithCustomToken(auth, data.customToken);
+      if (data.token) {
+        localStorage.setItem('moms_magic_admin_token', data.token);
+      }
+      toast.success(`Welcome back, Admin! Redirecting... 👑`);
+      setTimeout(() => navigate('/admin'), 800);
     } catch (err: any) {
       toast.error('An error occurred during login.');
     } finally {

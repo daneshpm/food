@@ -1,3 +1,6 @@
+const crypto = require('crypto');
+const { getFirebaseAdmin } = require('./_firebaseAdmin.cjs');
+
 // In-memory IP rate limiter for serverless environment
 const loginAttempts = new Map();
 
@@ -19,7 +22,7 @@ function isRateLimited(ip) {
   return userRecord.count > maxAttempts;
 }
 
-export default function handler(req, res) {
+module.exports = async function handler(req, res) {
   // 1. Security Headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -65,20 +68,49 @@ export default function handler(req, res) {
       });
     }
 
-    if (email.trim().toLowerCase() === adminEmail.trim().toLowerCase() && password.trim() === adminPassword.trim()) {
-      return res.status(200).json({
-        success: true,
-        token: adminAuthToken,
-        user: {
-          id: 'admin-1',
-          name: 'Super Admin',
-          email: adminEmail,
-          role: 'super_admin'
-        }
-      });
-    } else {
+    if (email.trim().toLowerCase() !== adminEmail.trim().toLowerCase() || password.trim() !== adminPassword.trim()) {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
+
+    // Credentials verified. Also establish a real Firebase Auth session so
+    // Firestore rules can actually verify "is this an admin" server-side,
+    // instead of the client trusting a plain localStorage flag (which is
+    // what this project did before - anyone could grant themselves admin
+    // access with one devtools call). The uid is deterministic (derived
+    // from the admin email) so the same admin always maps to the same
+    // staff/{uid} doc.
+    const uid = 'admin-' + crypto.createHash('sha256').update(adminEmail.trim().toLowerCase()).digest('hex').slice(0, 24);
+    let customToken = null;
+
+    const { db, auth } = getFirebaseAdmin();
+    if (db && auth) {
+      try {
+        await auth.getUser(uid).catch(async () => {
+          await auth.createUser({ uid, email: adminEmail, emailVerified: true });
+        });
+        await db.collection('staff').doc(uid).set(
+          { email: adminEmail, name: 'Super Admin', role: 'admin', updatedAt: new Date().toISOString() },
+          { merge: true }
+        );
+        customToken = await auth.createCustomToken(uid);
+      } catch (err) {
+        console.error('Failed to provision admin Firebase session:', err);
+      }
+    } else {
+      console.warn('FIREBASE_SERVICE_ACCOUNT not configured - admin login will not get a real Firebase Auth session, and Firestore-rule-gated admin data (hotels/riders/staff) will be inaccessible until it is set.');
+    }
+
+    return res.status(200).json({
+      success: true,
+      token: adminAuthToken,
+      customToken,
+      user: {
+        id: uid,
+        name: 'Super Admin',
+        email: adminEmail,
+        role: 'super_admin'
+      }
+    });
   } catch (error) {
     const correlationId = `err_${Date.now().toString(36)}`;
     console.error(`[${correlationId}] Auth Handler Exception:`, error);
@@ -88,4 +120,4 @@ export default function handler(req, res) {
       correlationId
     });
   }
-}
+};

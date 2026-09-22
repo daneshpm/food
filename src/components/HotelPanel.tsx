@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChefHat, CheckCircle, AlertCircle, Package, Power, LogIn, EyeOff, RotateCcw } from 'lucide-react';
+import { ChefHat, CheckCircle, AlertCircle, Package, Power, EyeOff, RotateCcw } from 'lucide-react';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, updateDoc, collection, query, where, onSnapshot, getDoc, getDocs } from 'firebase/firestore';
+import { doc, updateDoc, collection, onSnapshot, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import toast from 'react-hot-toast';
 import { useSEO } from '../utils/seo';
@@ -16,11 +16,6 @@ import { sendHotelStatusNotification } from '../utils/telegram';
 export default function HotelPanel() {
   useSEO("Kitchen Portal", "Hotel/Restaurant dashboard for managing live orders.");
   const navigate = useNavigate();
-
-  // Local Login States
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const [hotelId, setHotelId] = useState<string | null>(null);
   const [hotelName, setHotelName] = useState<string>("Kitchen Partner");
@@ -57,36 +52,32 @@ export default function HotelPanel() {
     requestNotificationPermission();
   }, []);
 
-  // Firebase Auth check + role verification
+  // Firebase Auth check + role verification. Trusts only a real, server-
+  // verified Firebase Auth session (established by api/hotel-auth.cjs after
+  // password verification) - no client-side localStorage bypass, and no
+  // longer fails open on a lookup error.
   useEffect(() => {
-    const hotelAuth = localStorage.getItem('hotel_auth');
-    if (hotelAuth) {
-      try {
-        const hotelData = JSON.parse(hotelAuth);
-        setHotelId(hotelData.id);
-        setHotelName(hotelData.name || "Kitchen Partner");
-        setAssignedFood(hotelData.foodName || null);
-        setChecking(false);
-        return;
-      } catch (_) {}
-    }
-
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         setChecking(false);
+        navigate('/hotel-login', { replace: true });
         return;
       }
       try {
         const snap = await getDoc(doc(db, 'staff', user.uid));
         if (snap.exists() && snap.data().role === 'hotel') {
           setHotelId(user.uid);
-          setHotelName(snap.data().email?.split('@')[0] || "Kitchen Partner");
+          setHotelName(snap.data().name || snap.data().email?.split('@')[0] || "Kitchen Partner");
         } else {
           toast.error('Access denied. Kitchen role required.');
           await signOut(auth);
+          navigate('/hotel-login', { replace: true });
         }
-      } catch (_) {
-        setHotelId(user.uid);
+      } catch (err) {
+        console.error('Kitchen role verification failed:', err);
+        toast.error('Could not verify access. Please log in again.');
+        await signOut(auth);
+        navigate('/hotel-login', { replace: true });
       }
       setChecking(false);
     });
@@ -153,74 +144,8 @@ export default function HotelPanel() {
     return () => unsubscribe();
   }, [hotelId, assignedFood]);
 
-  const handleHotelLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      toast.error('Please enter email and password.');
-      return;
-    }
-    setIsLoading(true);
-
-    try {
-      let hotelData: any = null;
-      try {
-        const hotelsCol = collection(db, 'hotels');
-        const q = query(hotelsCol, where('email', '==', email.trim()), where('password', '==', password.trim()));
-        const querySnap = await getDocs(q);
-        if (!querySnap.empty) {
-          const hotelDoc = querySnap.docs[0];
-          hotelData = { id: hotelDoc.id, ...hotelDoc.data() };
-        }
-      } catch (err) {
-        console.warn('Firestore hotel query failed, trying local storage cache...', err);
-      }
-
-      if (!hotelData) {
-        // Default fallback for instant Kitchen Partner login
-        const em = email.trim().toLowerCase();
-        const pw = password.trim();
-        if ((em === 'kitchen@mintoo.com' || em === 'hotel@mintoo.com' || em === 'kitchen@minto.com' || em === 'hotel1@minto.com') && (pw === 'kitchen123' || pw === 'hotel123' || pw === '123456' || pw === 'minto@2026')) {
-          hotelData = {
-            id: 'hotel-partner-1',
-            name: 'Mintoo Kitchen Partner',
-            email: em
-          };
-        } else {
-          const cachedHotelsStr = localStorage.getItem('moms_magic_hotels');
-          if (cachedHotelsStr) {
-            try {
-              const cachedHotels = JSON.parse(cachedHotelsStr);
-              const found = cachedHotels.find((h: any) => 
-                h.email.toLowerCase() === email.trim().toLowerCase() && 
-                h.password === password.trim()
-              );
-              if (found) {
-                hotelData = found;
-              }
-            } catch (_) {}
-          }
-        }
-      }
-
-      if (hotelData) {
-        localStorage.setItem('hotel_auth', JSON.stringify(hotelData));
-        setHotelId(hotelData.id);
-        setHotelName(hotelData.name || "Kitchen Partner");
-        setAssignedFood(hotelData.foodName || null);
-        toast.success(`Welcome back, ${hotelData.name || 'Kitchen Partner'}! 🎯`);
-      } else {
-        toast.error("Invalid email or password.");
-      }
-    } catch (err: any) {
-      toast.error(err.message || 'Login failed.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleLogout = async () => {
     await signOut(auth);
-    localStorage.removeItem('hotel_auth');
     toast.success("Signed out successfully.");
     setHotelId(null);
   };
@@ -307,60 +232,16 @@ export default function HotelPanel() {
     );
   }
 
-  // Render local login page if not logged in
+  // Not authenticated - the useEffect above already redirects to
+  // /hotel-login; this is just the brief placeholder shown until that
+  // navigation completes. (Previously this rendered a second, redundant
+  // login form here with its own plaintext-password Firestore query AND a
+  // hardcoded backdoor of 16 guessable email/password combinations that
+  // granted full kitchen panel access - removed entirely, not just hidden.)
   if (!hotelId) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <motion.div 
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-white border border-gray-200 rounded-[35px] w-full max-w-md p-8 shadow-sm space-y-6 relative overflow-hidden text-left"
-        >
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-orange-500 to-red-500" />
-          <div className="absolute -top-24 -left-24 w-48 h-48 bg-orange-500/5 blur-[80px] rounded-full pointer-events-none" />
-
-          <div className="space-y-2 mt-4 text-center">
-            <ChefHat className="w-12 h-12 text-orange-500 mx-auto animate-pulse" />
-            <h2 className="text-3xl font-black italic uppercase tracking-tighter text-gray-900 mt-4">
-              KITCHEN <span className="text-orange-500">PORTAL</span>
-            </h2>
-            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-none">
-              Kitchen Partner Login Required
-            </p>
-          </div>
-
-          <form onSubmit={handleHotelLogin} className="space-y-4">
-            <div>
-              <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Kitchen Email</label>
-              <input
-                type="email"
-                placeholder="kitchen@minto.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-5 outline-none focus:border-orange-200 transition-all font-bold text-xs text-gray-900 placeholder:text-gray-400"
-              />
-            </div>
-            <div>
-              <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest block mb-1">Password</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full bg-gray-50 border border-gray-200 rounded-2xl py-3.5 px-5 outline-none focus:border-orange-200 transition-all font-bold text-xs text-gray-900 placeholder:text-gray-400"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:brightness-105 active:scale-95 text-white font-black text-xs uppercase tracking-[2px] py-4 rounded-2xl transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              {isLoading ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <>Log In Partner <LogIn className="w-4 h-4" /></>}
-            </button>
-          </form>
-        </motion.div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <span className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }

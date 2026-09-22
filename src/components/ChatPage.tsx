@@ -36,13 +36,6 @@ export default function ChatPage() {
   // 1. Identify currently logged in User's Role (customer, rider, admin)
   useEffect(() => {
     const checkRole = async () => {
-      // Check local storage for admin override first
-      if (localStorage.getItem('admin_auth') === 'true') {
-        setUserRole('admin');
-        setLoading(false);
-        return;
-      }
-
       const localPhone = localStorage.getItem('moms_magic_user_phone');
       const isGuest = localStorage.getItem('moms_magic_guest') === 'true';
 

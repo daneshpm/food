@@ -26,32 +26,36 @@ All product/menu photos live in `public/images/`; nothing else belongs in `publi
 
 ## Architecture
 
-### Four distinct login systems - inconsistent security, read this before touching auth
+### Four login systems, now consistently backed by real Firebase Auth sessions
 
-| Role | Component | Mechanism | Security |
-|---|---|---|---|
-| Customer | `AuthPage.tsx` | Firebase Auth (Google/email) | Standard, fine |
-| Delivery rider | `RiderLogin.tsx` | Firebase Auth (`signInWithEmailAndPassword`) | Fine |
-| Staff/Admin | `StaffLogin.tsx` | POSTs to `api/login.js` (rate-limited, no hardcoded fallback credentials, real security headers) | Fine on the server side, but **see the client-side bypass below** |
-| Kitchen ("hotel") | `HotelLogin.tsx` | Queries Firestore `hotels` collection directly, comparing a **plaintext password field** via `where('password', '==', password)` | **Broken/insecure - see Known issues** |
+| Role | Component | Mechanism |
+|---|---|---|
+| Customer | `AuthPage.tsx` | Firebase Auth (Google/email) |
+| Delivery rider | `RiderLogin.tsx` | Firebase Auth (`signInWithEmailAndPassword`) |
+| Staff/Admin | `StaffLogin.tsx` | POSTs to `api/login.cjs`, which verifies `ADMIN_EMAIL`/`ADMIN_PASSWORD` (rate-limited, security headers, no insecure fallback), then mints a Firebase custom token (deterministic uid derived from the admin email) and ensures a `staff/{uid}` doc with `role: 'admin'` exists. Client calls `signInWithCustomToken`. |
+| Kitchen ("hotel") | `HotelLogin.tsx` | POSTs to `api/hotel-auth.cjs` (`mode: 'login'`), which verifies the password server-side against a hash (scrypt) stored in the `hotels` doc, then mints a custom token **using the existing `hotels/{hotelId}` doc id as the uid** (so every other place that already keys data by `hotelId` - menu items, orders, `AdminPage.tsx` - keeps working unchanged) and ensures a matching `staff/{hotelId}` doc with `role: 'hotel'`. |
 
-**Admin session bypass**: `AdminPage.tsx` and `ChatPage.tsx` both check `localStorage.getItem('admin_auth') === 'true'` and grant full admin access if so, with **no server-side re-verification**. `StaffLogin.tsx` sets this flag after a real `/api/login` check, but since it's a plain localStorage read, anyone can set `localStorage.setItem('admin_auth', 'true')` in their browser console and get admin access with no credentials at all. `AdminPage.tsx` also fails **open**: if the Firestore read of a user's `staff/{uid}` role doc throws for any reason, the catch block grants admin access rather than denying it (`catch (_) { setAdminId(user.uid); }`).
+All four now end in a real, verifiable Firebase Auth session that Firestore rules can check - there is no more client-side-only "flag in localStorage" auth anywhere. If you're adding a new role/panel, follow this pattern; do not add another localStorage-flag shortcut, no matter how tempting it looks for a quick admin-only page gate (see Upgrade log for what that cost here).
+
+Passwords for hotels/kitchens are set via `api/hotel-auth.cjs` (`mode: 'set-password'`, gated by the `ADMIN_AUTH_TOKEN` bearer header - same convention as `api/settings.js`/`api/send-push.cjs`), which hashes them server-side. Nothing in this app should ever write a plaintext `password` field to Firestore or compare one client-side again.
 
 ### Deployment - three parallel backends
 
-Same pattern as the sibling repo: `api/*.js` (Vercel), `netlify/functions/*.ts` (Netlify), and a Vite dev-server mock in `vite.config.ts`'s `api-mock-server` plugin. Update all three when changing an API route or local dev will diverge from production. `api/login.js` is well-hardened (rate limiting, security headers, CORS, requires `ADMIN_EMAIL`/`ADMIN_PASSWORD` env vars with no insecure default) - a good reference for what the other admin-adjacent endpoints should look like.
+Same pattern as the sibling repo: `api/*.{js,cjs}` (Vercel), `netlify/functions/*.ts` (Netlify), and a Vite dev-server mock in `vite.config.ts`'s `api-mock-server` plugin. Update all three when changing an API route or local dev will diverge from production. **The Vite dev mock does not implement the real `login.cjs`/`hotel-auth.cjs` custom-token logic** - it's a simpler standalone mock, so those two endpoints can only be exercised against a real Vercel deployment with `FIREBASE_SERVICE_ACCOUNT` configured, not via `npm run dev`.
+
+Any `api/*.js` file that uses `firebase-admin` must be `.cjs`, not `.js` - confirmed live (not just suspected) that an ESM version crashes on Vercel with `FUNCTION_INVOCATION_FAILED` at module load, despite working fine in local `node --check`/`node -e` testing. `api/_firebaseAdmin.cjs` is the shared init helper every firebase-admin-dependent function should import from; see its file comment for the full story if you're tempted to "clean this up" back to `import`.
 
 ### Multi-role data model
 
-- `hotels/{id}` - kitchen/restaurant profiles. `Product.hotelId` in `src/types.ts` scopes menu items to a specific kitchen; `menuStore.ts`, `Checkout.tsx`, `HotelPanel.tsx`, `AdminPage.tsx` all filter/write by `hotelId`. This is the real, wired-up version of the "multi-restaurant" concept - unlike the sibling repo where the equivalent `Hotel` type was fully dead code.
+- `hotels/{id}` - kitchen/restaurant profiles, doc id also used as the Firebase Auth uid for that kitchen's login (see above). `Product.hotelId` in `src/types.ts` scopes menu items to a specific kitchen; `menuStore.ts`, `Checkout.tsx`, `HotelPanel.tsx`, `AdminPage.tsx` all filter/write by `hotelId`. This is the real, wired-up version of the "multi-restaurant" concept - unlike the sibling repo where the equivalent `Hotel` type was fully dead code.
 - `riders/{uid}` - delivery partners, keyed by their Firebase Auth uid.
-- `staff/{uid}` - staff/admin accounts, keyed by Firebase Auth uid, with a `role` field (`'admin'` grants `AdminPage.tsx` access - see the bypass above for why this check isn't actually load-bearing today).
+- `staff/{uid}` - staff/admin/hotel role records, keyed by Firebase Auth uid, with a `role` field (`'admin'` or `'hotel'`) that both `firestore.rules`' `isAdmin()` helper and each panel's own client-side check depend on.
 - `orders/{id}` - carries a role-relevant subset of fields for customer tracking (`TrackingPage.tsx`), kitchen fulfillment (`HotelPanel.tsx`), and delivery (`DeliveryDashboard.tsx`, also mounted at `/rider`).
 - `chats/{orderId}/messages/{id}` - support chat, `ChatPage.tsx` at `/chat/:orderId`.
 
 ### Firestore rules (`firestore.rules`)
 
-Broad `if request.auth != null` gates on most collections, including `hotels`/`riders`/`staff` - but `HotelLogin.tsx`'s query against `hotels` runs *before* any Firebase Auth sign-in, so either that login is currently broken against these exact rules, or the rules actually deployed to the live Firebase project are more permissive than what's in this file (the same rules-drift problem seen in the sibling repo - **verify what's actually published in the Firebase Console before assuming this file is authoritative**).
+`hotels`/`riders`/`staff` writes now require either a verified admin (`isAdmin()`, a rules function that looks up `staff/{request.auth.uid}.role == 'admin'`) or the record's own owner (`request.auth.uid == hotelId`/`riderId`). `menu`/`system` writes require `isAdmin()` too. All of these previously only checked `request.auth != null` - any signed-in customer could read or write any hotel's record (including its then-plaintext password), any rider's record, or edit the live menu/site settings directly via the client SDK. **Still true as before: verify what's actually published in the Firebase Console matches this file** - rules-drift between this file and what's live has bitten this project before (see the sibling repo's history).
 
 ### Payments
 
@@ -62,12 +66,14 @@ Same dual-path pattern in `Checkout.tsx`: web `checkout.razorpay.com/v1/checkout
 - `index.html` has an inline script that unregisters all service workers and clears all caches on every page load - deliberate (per commit history: "WebView ServiceWorker cache purging for instant APK/AAB updates"), needed to stop old Android WebView installs getting stuck on stale cached content. It does mean the PWA's offline-caching benefit is largely self-defeating on repeat visits; don't "fix" this without understanding why it was added.
 - `AdminPage.tsx` has a "greetings" feature (king/queen/anonymous dialogue lines, stored in `localStorage`) - cosmetic personalization text shown somewhere in the customer UI, not a bug, just unusual naming if you're grepping around.
 
-## Known issues (found during a fresh audit, not yet fixed - flagging before further work)
+## Known issues
 
-1. **`HotelLogin.tsx` stores and checks plaintext passwords via a client-side Firestore query.** Whether or not the currently-published Firestore rules allow this query to succeed for unauthenticated users, the architecture itself is unsound - passwords should never be compared client-side against a database record. Needs a real fix (Firebase Auth, matching `RiderLogin.tsx`, or a secured server endpoint, matching `StaffLogin.tsx`/`api/login.js`), not a rules tweak.
-2. **Admin access can be granted with one `localStorage.setItem('admin_auth', 'true')` call in any browser console** - no credentials needed. `AdminPage.tsx` and `ChatPage.tsx` both trust this flag with no server-side check. Additionally fails open on a Firestore read error (grants access instead of denying it).
-3. **Hardcoded live Razorpay key as a fallback**: `Checkout.tsx` has `key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_...'` - if the env var isn't set in a given deployment, payments silently go through someone else's live Razorpay account with no indication anything's misconfigured.
-4. **No server-side Razorpay payment verification anywhere** - `completeOrder(response.razorpay_payment_id)` trusts whatever payment ID the browser reports, for both the web and native payment paths. Since that handler runs entirely in client JS, a payment ID could be fabricated to mark an order "paid" without paying.
+Fixed 2026-09-22 (see Upgrade log for detail): the `HotelLogin.tsx` plaintext-password pattern (plus a second, worse copy of it found embedded in `HotelPanel.tsx` with a hardcoded 16-combination login backdoor), the `admin_auth`/`hotel_auth` localStorage bypasses, and the fail-open role checks.
+
+Still open:
+1. **Hardcoded live Razorpay key as a fallback**: `Checkout.tsx` has `key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_...'` - if the env var isn't set in a given deployment, payments silently go through someone else's live Razorpay account with no indication anything's misconfigured.
+2. **No server-side Razorpay payment verification anywhere** - `completeOrder(response.razorpay_payment_id)` trusts whatever payment ID the browser reports, for both the web and native payment paths. Since that handler runs entirely in client JS, a payment ID could be fabricated to mark an order "paid" without paying.
+3. **No password-reset UI for hotel accounts beyond a single "Reset Password" button** in `AdminPage.tsx`'s hotel list (uses a browser `prompt()`, not a proper form) - functional but minimal.
 
 ## Tech stack & tools in use
 
@@ -84,6 +90,16 @@ Same dual-path pattern in `Checkout.tsx`: web `checkout.razorpay.com/v1/checkout
 - **Image tooling**: `sharp` powers `scripts/optimize-images.mjs` and `scripts/generate-icons.mjs`
 
 ## Upgrade log
+
+- **2026-09-22** — Fixed the two most severe findings from the 2026-09-21 audit (see Known issues above for current state):
+  - New `api/_firebaseAdmin.cjs`, `api/login.cjs` (replaces `api/login.js`), `api/hotel-auth.cjs`. All three security-critical fixes below depend on these establishing real Firebase Auth sessions server-side.
+  - **`HotelLogin.tsx`**: no longer queries Firestore directly with a plaintext password; now calls `api/hotel-auth.cjs`, which hashes/verifies server-side and mints a custom token.
+  - **Found and removed a second, worse copy of the same bug while fixing the first one**: `HotelPanel.tsx` had its own embedded login form, never reached in the normal flow but still shipped to every client, with (a) the same plaintext Firestore query, (b) a **hardcoded backdoor** of 4 emails × 4 passwords (16 combinations, e.g. `kitchen@mintoo.com`/`kitchen123`) that granted full kitchen panel access, and (c) a fallback comparing against a client-cached password list. Deleted entirely, not just hidden - `HotelPanel.tsx` now only trusts a real `onAuthStateChanged` session and redirects to `/hotel-login` otherwise.
+  - **Admin bypass**: `AdminPage.tsx` and `ChatPage.tsx` no longer trust `localStorage.getItem('admin_auth') === 'true'` (anyone could set this from devtools with no credentials). Both also no longer fail open on a Firestore role-lookup error (previously granted access on error; now denies and signs out).
+  - Removed the hardcoded default password (`'minto@2026'`) that pre-filled the hotel-creation form in `AdminPage.tsx` - every new kitchen partner got the identical guessable password unless the admin manually retyped it. Also removed a plaintext-password display feature (with a show/hide toggle) from the admin hotel list, replacing it with a "Reset Password" action that calls the new hashing endpoint.
+  - `firestore.rules`: added an `isAdmin()` helper (`staff/{uid}.role == 'admin'`); `hotels`/`riders`/`staff` writes now require it (or, for hotels/riders, the record's own owner) instead of just `request.auth != null`; `menu`/`system` writes now require it too - previously any signed-in customer could write any of these directly via the client SDK.
+  - Proactively converted `api/send-push.js` to `.cjs` too (same ESM/Vercel firebase-admin crash risk, confirmed live in the sibling repo, applied here before it could bite in production rather than after).
+  - Verified via `tsc --noEmit`, a full `vite build`, and direct invocation of the new/changed `.cjs` handlers with mock request objects (the Vite dev-server mock doesn't implement the real custom-token logic - see the Deployment section above). Done on the `claude/cleanup-audit` branch, not pushed to `main`. `tsc`/`vite build` intermittently crashed with out-of-memory errors during this session due to severe system memory pressure (down to ~0.2-0.4GB free) unrelated to these changes - if you hit the same thing, it's worth checking free memory before assuming a code regression.
 
 - **2026-09-21** — Fresh audit and cleanup pass (this repo had never had one; the sibling repo `foodd` got a similar pass on 2026-09-19/20):
   - Removed 72 duplicate images sitting in the repo root (byte-identical to files already in `public/` - verified via hash comparison, not just assumed) and 2 further orphaned/unreferenced images plus an orphaned `public/manifest.json` (superseded by `vite-plugin-pwa`'s generated one, never linked from `index.html`)

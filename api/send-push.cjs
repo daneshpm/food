@@ -1,43 +1,12 @@
-import admin from 'firebase-admin';
+const { getFirebaseAdmin } = require('./_firebaseAdmin.cjs');
 
-// Initialize Firebase Admin SDK
-let initialized = false;
-let db = null;
-let messaging = null;
-
-try {
-  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || 'momsmagic-d131a';
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-
-  if (!admin.apps.length) {
-    if (clientEmail && privateKey) {
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId,
-          clientEmail,
-          privateKey: privateKey.replace(/\\n/g, '\n'),
-        })
-      });
-      initialized = true;
-    } else {
-      // Local dev mode fallback - try using application default credentials or mock
-      console.warn("FCM credentials missing. Running send-push API in simulated local dev mode.");
-    }
-  } else {
-    initialized = true;
-  }
-
-  if (admin.apps.length > 0) {
-    db = admin.firestore();
-    messaging = admin.messaging();
-    initialized = true;
-  }
-} catch (error) {
-  console.error("Firebase admin init error:", error);
+const { db, messaging } = getFirebaseAdmin();
+const initialized = !!db && !!messaging;
+if (!initialized) {
+  console.warn("FCM credentials missing. Running send-push API in simulated local dev mode.");
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -65,7 +34,6 @@ export default async function handler(req, res) {
   // 1. Local Development Simulation Fallback Mode
   if (!initialized || !db || !messaging) {
     console.log(`[Mock FCM Broadcast] Title: "${title}" Message: "${message}"`);
-    // Return mock success with 5 simulated devices
     return res.status(200).json({
       success: true,
       successCount: 5,
@@ -106,10 +74,9 @@ export default async function handler(req, res) {
 
     if (imageUrl) {
       payload.notification.imageUrl = imageUrl;
-      payload.data.image = imageUrl; // Support custom sw data extraction
+      payload.data.image = imageUrl;
     }
 
-    // Send to all registered devices in batches of up to 500
     const chunks = [];
     const chunkSize = 500;
     for (let i = 0; i < tokens.length; i += chunkSize) {
@@ -129,7 +96,6 @@ export default async function handler(req, res) {
       successCount += response.successCount;
       failureCount += response.failureCount;
 
-      // Clean up invalid or unregistered tokens from Firestore
       const tokensToDelete = [];
       response.responses.forEach((resp, index) => {
         if (!resp.success) {
@@ -167,4 +133,4 @@ export default async function handler(req, res) {
       error: err.message || 'Internal Server Error broadcasting push notifications.'
     });
   }
-}
+};

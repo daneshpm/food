@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LogIn, Eye, EyeOff, ShieldCheck, ChefHat } from 'lucide-react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
+import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase';
 import toast from 'react-hot-toast';
 import { useSEO } from '../utils/seo';
 
@@ -17,9 +17,10 @@ export default function HotelLogin() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('hotel_auth')) {
-      navigate('/hotel');
-    }
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) navigate('/hotel');
+    });
+    return unsub;
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -30,28 +31,25 @@ export default function HotelLogin() {
     }
     setIsLoading(true);
     try {
-      let hotelData: any = null;
-      try {
-        const hotelsCol = collection(db, 'hotels');
-        const q = query(hotelsCol, where('email', '==', email.trim()), where('password', '==', password.trim()));
-        const querySnap = await getDocs(q);
-        if (!querySnap.empty) {
-          const hotelDoc = querySnap.docs[0];
-          const data = hotelDoc.data();
-          hotelData = { id: hotelDoc.id, name: data.name || 'Kitchen Partner', email: data.email };
-        }
-      } catch (e) {
-        console.warn('Firestore hotel query error:', e);
+      const response = await fetch('/api/hotel-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'login', email: email.trim(), password: password.trim() }),
+      });
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        toast.error(data.message || 'Invalid kitchen credentials.');
+        return;
       }
 
-      if (hotelData) {
-        const safeSession = { id: hotelData.id, name: hotelData.name, email: hotelData.email };
-        localStorage.setItem('hotel_auth', JSON.stringify(safeSession));
-        toast.success(`Welcome back! Redirecting to Kitchen panel... 🎯`);
-        setTimeout(() => navigate('/hotel'), 800);
-      } else {
-        toast.error('Invalid kitchen credentials.');
-      }
+      // Establishes a real Firebase Auth session (verified server-side in
+      // api/hotel-auth.cjs) rather than the previous approach of just
+      // stashing an unverified session object in localStorage.
+      await signInWithCustomToken(auth, data.customToken);
+
+      toast.success(`Welcome back! Redirecting to Kitchen panel... 🎯`);
+      setTimeout(() => navigate('/hotel'), 800);
     } catch (err: any) {
       toast.error('An error occurred during login.');
     } finally {
