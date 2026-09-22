@@ -18,8 +18,10 @@ import {
   MessageSquare,
   Plus,
   EyeOff,
-  RotateCcw
+  RotateCcw,
+  ChefHat
 } from 'lucide-react';
+import AnimatedCounter from './ui/AnimatedCounter';
 import { 
   signInWithEmailAndPassword, 
   signOut,
@@ -882,7 +884,7 @@ export default function DeliveryDashboard() {
               onClick={() => navigate('/hotel')}
               className="bg-orange-50 border border-orange-200 hover:border-orange-300 text-orange-600 px-5 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-2"
             >
-              👨‍🍳 Switch to Kitchen Portal
+              <ChefHat className="w-4 h-4" /> Switch to Kitchen Portal
             </button>
             {clearedOrderIds.length > 0 && (
               <button
@@ -921,12 +923,12 @@ export default function DeliveryDashboard() {
           <div className="bg-white border border-gray-200 p-5 rounded-2xl text-left">
             <TrendingUp className="w-5 h-5 text-orange-500 mb-2" />
             <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Total Earnings</p>
-            <h3 className="text-3xl font-black italic text-gray-900 mt-1">₹{riderProfile?.earnings || 0}</h3>
+            <AnimatedCounter value={riderProfile?.earnings || 0} format={(n) => `₹${Math.round(n)}`} className="block text-3xl font-black italic text-gray-900 mt-1" />
           </div>
           <div className="bg-white border border-gray-200 p-5 rounded-2xl text-left">
             <CheckCircle className="w-5 h-5 text-orange-500 mb-2" />
             <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Deliveries Done</p>
-            <h3 className="text-3xl font-black italic text-gray-900 mt-1">{completedCount} Orders</h3>
+            <AnimatedCounter value={completedCount} format={(n) => `${Math.round(n)} Orders`} className="block text-3xl font-black italic text-gray-900 mt-1" />
           </div>
           <div className="bg-white border border-gray-200 p-5 rounded-2xl text-left col-span-2 sm:col-span-1">
             <Clock className="w-5 h-5 text-orange-500 mb-2" />

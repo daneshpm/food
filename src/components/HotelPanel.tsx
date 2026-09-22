@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChefHat, CheckCircle, AlertCircle, Package, Power, EyeOff, RotateCcw } from 'lucide-react';
+import { ChefHat, CheckCircle, AlertCircle, Package, Power, EyeOff, RotateCcw, Bike, Clock, Flame } from 'lucide-react';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, updateDoc, collection, onSnapshot, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
@@ -10,8 +10,30 @@ import { motion, AnimatePresence } from 'framer-motion';
 import IncomingOrderPopup from './IncomingOrderPopup';
 import InstallBanner from './InstallBanner';
 import OfflineBanner from './OfflineBanner';
+import AnimatedCounter from './ui/AnimatedCounter';
 import { requestNotificationPermission } from '../utils/notifications';
 import { sendHotelStatusNotification } from '../utils/telegram';
+
+function OrderAge({ createdAt }: { createdAt?: string }) {
+  const [label, setLabel] = useState('');
+  useEffect(() => {
+    if (!createdAt) return;
+    const update = () => {
+      const mins = Math.max(0, Math.round((Date.now() - new Date(createdAt).getTime()) / 60000));
+      setLabel(mins < 1 ? 'just now' : `${mins}m ago`);
+    };
+    update();
+    const id = setInterval(update, 15000);
+    return () => clearInterval(id);
+  }, [createdAt]);
+  if (!createdAt) return null;
+  const mins = Math.round((Date.now() - new Date(createdAt).getTime()) / 60000);
+  return (
+    <span className={`inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest ${mins >= 15 ? 'text-red-500' : 'text-gray-400'}`}>
+      <Clock className="w-3 h-3" /> {label}
+    </span>
+  );
+}
 
 export default function HotelPanel() {
   useSEO("Kitchen Portal", "Hotel/Restaurant dashboard for managing live orders.");
@@ -267,8 +289,8 @@ export default function HotelPanel() {
         
         <div className="bg-white rounded-[35px] p-6 sm:p-8 border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-orange-50 border border-orange-200 text-orange-500 flex items-center justify-center shadow-sm text-xl">
-              👨‍🍳
+            <div className="w-12 h-12 rounded-full bg-orange-50 border border-orange-200 text-orange-500 flex items-center justify-center shadow-sm">
+              <ChefHat className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-2xl font-black italic uppercase text-gray-900 tracking-tighter">{hotelName} Dashboard</h2>
@@ -277,13 +299,13 @@ export default function HotelPanel() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => navigate('/rider')}
               className="bg-blue-50 border border-blue-200 hover:border-blue-300 text-blue-600 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center gap-2"
             >
-              🛵 Switch to Rider Portal
+              <Bike className="w-4 h-4" /> Switch to Rider Portal
             </button>
             {clearedOrderIds.length > 0 && (
               <button
@@ -300,6 +322,26 @@ export default function HotelPanel() {
               <Power className="w-4 h-4" /> Sign Out
             </button>
           </div>
+        </div>
+
+        {/* At-a-glance stats: computed from the same order data already
+            loaded above, no extra Firestore reads */}
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: 'Pending', count: visibleOrders.filter(o => o.status === 'pending').length, icon: Flame, color: 'text-red-500 bg-red-50 border-red-200' },
+            { label: 'Preparing', count: visibleOrders.filter(o => o.status === 'Preparing').length, icon: ChefHat, color: 'text-orange-500 bg-orange-50 border-orange-200' },
+            { label: 'Active Total', count: visibleOrders.length, icon: Package, color: 'text-gray-700 bg-gray-100 border-gray-200' },
+          ].map(({ label, count, icon: Icon, color }) => (
+            <div key={label} className="bg-white rounded-2xl border border-gray-200 p-4 flex items-center gap-3 shadow-sm">
+              <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${color}`}>
+                <Icon className="w-4 h-4" />
+              </div>
+              <div>
+                <AnimatedCounter value={count} className="block text-xl font-black text-gray-900 leading-none" />
+                <span className="text-[8px] font-black uppercase tracking-widest text-gray-400">{label}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="space-y-4">
@@ -322,6 +364,7 @@ export default function HotelPanel() {
                     <div>
                       <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Order #{order.id.slice(0,6)}</p>
                       <h4 className="font-bold text-gray-900 text-sm mt-1">{order.userName}</h4>
+                      <div className="mt-1"><OrderAge createdAt={order.createdAt} /></div>
                     </div>
                     
                     <div className="flex items-center gap-2">

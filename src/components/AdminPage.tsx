@@ -40,6 +40,7 @@ import { useSEO } from '../utils/seo';
 import { useMenuStore } from '../store/menuStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { getActiveKingDialogues, getActiveQueenDialogues, getActiveAnonymousDialogues, DEFAULT_KING_DIALOGUES, DEFAULT_QUEEN_DIALOGUES, DEFAULT_ANONYMOUS_DIALOGUES } from './FunGreetingBanner';
+import AnimatedCounter from './ui/AnimatedCounter';
 const PREASSIGNED_EMAILS = Array.from({ length: 10 }, (_, i) => `hotel${i + 1}@minto.com`);
 
 export default function AdminPage() {
@@ -717,22 +718,22 @@ export default function AdminPage() {
           <div className="bg-white border border-gray-200 p-5 rounded-2xl text-left shadow-sm">
             <ShoppingBag className="w-5 h-5 text-orange-500 mb-2" />
             <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Live Orders</p>
-            <h3 className="text-3xl font-black italic text-gray-900 mt-1">{liveOrders.length}</h3>
+            <AnimatedCounter value={liveOrders.length} className="block text-3xl font-black italic text-gray-900 mt-1" />
           </div>
           <div className="bg-white border border-gray-200 p-5 rounded-2xl text-left shadow-sm">
             <TrendingUp className="w-5 h-5 text-green-500 mb-2" />
             <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Total Revenue</p>
-            <h3 className="text-3xl font-black italic text-gray-900 mt-1">₹{revenue.toLocaleString()}</h3>
+            <AnimatedCounter value={revenue} format={(n) => `₹${Math.round(n).toLocaleString()}`} className="block text-3xl font-black italic text-gray-900 mt-1" />
           </div>
           <div className="bg-white border border-gray-200 p-5 rounded-2xl text-left shadow-sm">
             <Bike className="w-5 h-5 text-blue-500 mb-2" />
             <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Riders</p>
-            <h3 className="text-3xl font-black italic text-gray-900 mt-1">{riders.length}</h3>
+            <AnimatedCounter value={riders.length} className="block text-3xl font-black italic text-gray-900 mt-1" />
           </div>
           <div className="bg-white border border-gray-200 p-5 rounded-2xl text-left shadow-sm">
             <Store className="w-5 h-5 text-purple-500 mb-2" />
             <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Hotels / Kitchens</p>
-            <h3 className="text-3xl font-black italic text-gray-900 mt-1">{hotels.length}</h3>
+            <AnimatedCounter value={hotels.length} className="block text-3xl font-black italic text-gray-900 mt-1" />
           </div>
         </div>
 
@@ -1138,7 +1139,9 @@ export default function AdminPage() {
                       <div key={hotel.id} className="bg-gray-50 border border-gray-200/50 rounded-2xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-left shadow-sm">
                         <div className="space-y-2 flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-xl">🏪</span>
+                            <div className="w-6 h-6 rounded-lg bg-orange-50 border border-orange-200 text-orange-500 flex items-center justify-center shrink-0">
+                              <Store className="w-3.5 h-3.5" />
+                            </div>
                             <h4 className="font-black text-gray-900 text-base tracking-tight truncate">{hotel.name}</h4>
                             <span className="px-2.5 py-0.5 rounded-lg bg-orange-500/10 text-orange-600 text-[8px] font-black uppercase tracking-widest border border-orange-500/20">
                               {hotel.location}

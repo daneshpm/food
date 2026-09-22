@@ -88,7 +88,7 @@ Still open:
 - **Styling**: Tailwind CSS v4, `clsx` + `tailwind-merge`
 - **Routing**: React Router v7
 - **State**: Zustand
-- **Animation**: Framer Motion / `motion`
+- **Animation**: Framer Motion / `motion`; `gsap` for dashboard stat counters (`src/components/ui/AnimatedCounter.tsx`) - only used from `AdminPage.tsx`/`HotelPanel.tsx`/`DeliveryDashboard.tsx`, all lazy-loaded routes, so its cost is isolated to a separate chunk paid only by staff/kitchen/rider users, never by customers browsing the storefront
 - **Backend-as-a-service**: Firebase (client SDK: Auth, Firestore, Cloud Messaging; `firebase-admin` server SDK in Vercel functions)
 - **Maps/location**: Leaflet
 - **PWA**: `vite-plugin-pwa` (see the cache-purging note above for why this is partially self-defeating by design)
@@ -96,6 +96,12 @@ Still open:
 - **Image tooling**: `sharp` powers `scripts/optimize-images.mjs` and `scripts/generate-icons.mjs`
 
 ## Upgrade log
+
+- **2026-09-22 (3)** — Dashboard polish pass (scoped to the panels that manage the business - `HotelPanel.tsx`, `AdminPage.tsx`, `DeliveryDashboard.tsx` - per the owner's request to prioritize "highest attention" areas over the customer storefront):
+  - Added `src/components/ui/AnimatedCounter.tsx` (GSAP count-up, formattable) and used it for every stat number across all three dashboards (order counts, revenue, rider/hotel counts, earnings, deliveries done) instead of static numbers
+  - Replaced emoji used as functional UI icons (`👨‍🍳`, `🛵`, `🏪`) with the `lucide-react` icons already used elsewhere in the same files, for visual consistency - left emoji in toast messages alone (`toast.success('...🎉')`), that's a reasonable, common pattern for transient confirmations, not the same thing as an icon
+  - `HotelPanel.tsx`: added an at-a-glance stats row (Pending/Preparing/Active Total, computed from already-loaded order data, no new Firestore reads) and an order-age indicator (`OrderAge`, turns red past 15 minutes) on each order card - a kitchen prioritizing live orders needs to know how long one's been waiting, which nothing showed before
+  - Deliberately did not touch the customer-facing storefront (`HomePage.tsx`/`Checkout.tsx`/etc.) in this pass, or add Lenis - see the note above about why Lenis doesn't fit a mobile-first app and would risk reintroducing the scroll jank just fixed
 
 - **2026-09-22 (2)** — Scroll performance: removed `backdrop-blur` from the four persistent (fixed/sticky) elements that stayed on screen during scroll - `Header.tsx`, `BottomCartBar.tsx`, `Checkout.tsx`'s bottom bar, `FoodInfoPage.tsx`'s sticky header - same root cause as the sibling repo's earlier fix, left every modal/popup's blur untouched since those only pay the cost once on open. Added `loading="lazy"` to the repeated menu/category grid images in `HomePage.tsx`/`CategoryPage.tsx`, which had no lazy-loading at all. See the new "Scroll performance" section above for the reasoning and what was deliberately left alone.
 
