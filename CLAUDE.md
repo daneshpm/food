@@ -59,7 +59,7 @@ Any `api/*.js` file that uses `firebase-admin` must be `.cjs`, not `.js` - confi
 
 ### Payments
 
-Same dual-path pattern in `Checkout.tsx`: web `checkout.razorpay.com/v1/checkout.js` normally, native `RazorpayCheckout` Capacitor/Cordova plugin when `Capacitor.isNativePlatform()`. See Known issues for the hardcoded key and missing verification, shared by both paths.
+Dual-path in `Checkout.tsx`: web `checkout.razorpay.com/v1/checkout.js` normally, native `RazorpayCheckout` Capacitor/Cordova plugin when `Capacitor.isNativePlatform()`. Both share the same order-creation and verification flow: `api/create-razorpay-order.js` creates the order server-side before checkout opens (so the later signature can be checked against an order_id/amount the client never controlled), and `api/verify-razorpay-payment.js` verifies Razorpay's HMAC-SHA256 signature after payment - `completeOrder()` is only called if that succeeds, for both paths. "Pay Online"/GPay/PhonePe are hidden entirely (falls back to Cash on Delivery) when `VITE_RAZORPAY_KEY_ID` isn't set, rather than falling back to a hardcoded key the way this used to. See Known issues for the one part of this that's unverified (the native path, no device available here).
 
 ### Notable UI details
 
@@ -74,12 +74,11 @@ Also added `loading="lazy"` to the repeated product-image `<img>` tags in `HomeP
 
 ## Known issues
 
-Fixed 2026-09-22 (see Upgrade log for detail): the `HotelLogin.tsx` plaintext-password pattern (plus a second, worse copy of it found embedded in `HotelPanel.tsx` with a hardcoded 16-combination login backdoor), the `admin_auth`/`hotel_auth` localStorage bypasses, and the fail-open role checks.
+Fixed 2026-09-22 (see Upgrade log for detail): the `HotelLogin.tsx` plaintext-password pattern (plus a second, worse copy of it found embedded in `HotelPanel.tsx` with a hardcoded 16-combination login backdoor), the `admin_auth`/`hotel_auth` localStorage bypasses, the fail-open role checks, the hardcoded Razorpay key fallback, and missing payment verification (both the web and native/Capacitor checkout paths).
 
 Still open:
-1. **Hardcoded live Razorpay key as a fallback**: `Checkout.tsx` has `key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_...'` - if the env var isn't set in a given deployment, payments silently go through someone else's live Razorpay account with no indication anything's misconfigured.
-2. **No server-side Razorpay payment verification anywhere** - `completeOrder(response.razorpay_payment_id)` trusts whatever payment ID the browser reports, for both the web and native payment paths. Since that handler runs entirely in client JS, a payment ID could be fabricated to mark an order "paid" without paying.
-3. **No password-reset UI for hotel accounts beyond a single "Reset Password" button** in `AdminPage.tsx`'s hotel list (uses a browser `prompt()`, not a proper form) - functional but minimal.
+1. **No password-reset UI for hotel accounts beyond a single "Reset Password" button** in `AdminPage.tsx`'s hotel list (uses a browser `prompt()`, not a proper form) - functional but minimal.
+2. **The native (Capacitor/Cordova) Razorpay payment-verification path is unverified against a real device/emulator** - no Android device or emulator available in this environment. The code assumes the native plugin returns `razorpay_order_id`/`razorpay_signature` alongside `razorpay_payment_id` once `order_id` is set on the checkout options (per Razorpay's own docs, and consistent with the web SDK), and fails closed (shows an error, does not complete the order) if those fields are missing rather than trusting an unverified payment - but this needs a real native build to confirm it actually works end to end, not just that it fails safely.
 
 ## Tech stack & tools in use
 
@@ -96,6 +95,13 @@ Still open:
 - **Image tooling**: `sharp` powers `scripts/optimize-images.mjs` and `scripts/generate-icons.mjs`
 
 ## Upgrade log
+
+- **2026-09-22 (4)** — Fixed the last two Known Issues from the 2026-09-21 audit: the hardcoded live Razorpay key fallback and missing payment verification, for both the web and native (Capacitor/Cordova) checkout paths in `Checkout.tsx`.
+  - New `api/create-razorpay-order.js` (creates the order server-side before checkout opens) and `api/verify-razorpay-payment.js` (verifies the HMAC-SHA256 signature after payment) - neither needs `firebase-admin`, so plain `.js` (ESM) is fine, unlike the auth-related endpoints.
+  - `Checkout.tsx`: removed `key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_...'` entirely; the GPay/PhonePe/Cards payment options are now hidden from the UI (falls back to Cash on Delivery) when `VITE_RAZORPAY_KEY_ID` isn't set, instead of silently using someone else's live key. Both the web `handler` callback and the native `payment.success` listener now go through the same `verifyAndComplete()` helper, which calls `api/verify-razorpay-payment.js` and only calls `completeOrder()` if it succeeds - fails closed (shows an error, doesn't complete the order) rather than trusting an unverified payment id.
+  - Mirrored both endpoints in the Vite dev-server mock (`vite.config.ts`) so local dev exercises the same real Razorpay API calls once `VITE_RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET` are in `.env.local`. Also removed the dead `GEMINI_API_KEY` `define` block and unused `loadEnv` destructure while in there (leftover AI Studio scaffolding, confirmed unused anywhere in `src/`).
+  - **Native path not verified against a real device** (no Android device/emulator available here) - see Known Issues.
+  - Verified with `tsc --noEmit`, a full `vite build`, and a dev-server smoke test confirming both new endpoints fail gracefully (clear JSON error, not a crash) when Razorpay isn't configured.
 
 - **2026-09-22 (3)** — Dashboard polish pass (scoped to the panels that manage the business - `HotelPanel.tsx`, `AdminPage.tsx`, `DeliveryDashboard.tsx` - per the owner's request to prioritize "highest attention" areas over the customer storefront):
   - Added `src/components/ui/AnimatedCounter.tsx` (GSAP count-up, formattable) and used it for every stat number across all three dashboards (order counts, revenue, rider/hotel counts, earnings, deliveries done) instead of static numbers

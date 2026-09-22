@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import {defineConfig, loadEnv} from 'vite';
 
 export default defineConfig(({mode}) => {
@@ -158,6 +159,74 @@ export default defineConfig(({mode}) => {
               return;
             }
 
+            // Handle Create Razorpay Order (LOCAL DEV) - real call to
+            // Razorpay's API using VITE_RAZORPAY_KEY_ID/RAZORPAY_KEY_SECRET
+            // from .env.local, same logic as api/create-razorpay-order.js,
+            // so dev and prod behave the same.
+            if (req.url && req.url.includes('/api/create-razorpay-order') && req.method === 'POST') {
+              let body = '';
+              req.on('data', chunk => { body += chunk.toString(); });
+              req.on('end', async () => {
+                const keyId = env.VITE_RAZORPAY_KEY_ID;
+                const keySecret = env.RAZORPAY_KEY_SECRET;
+                if (!keyId || !keySecret) {
+                  res.writeHead(500, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ success: false, error: 'Razorpay is not configured (VITE_RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET missing from .env.local).' }));
+                  return;
+                }
+                try {
+                  const { amount } = JSON.parse(body);
+                  const auth = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
+                  const rzpResponse = await fetch('https://api.razorpay.com/v1/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Basic ${auth}` },
+                    body: JSON.stringify({ amount: Math.round(amount * 100), currency: 'INR' }),
+                  });
+                  const rzpData = await rzpResponse.json();
+                  if (!rzpResponse.ok) {
+                    res.writeHead(502, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, error: rzpData.error?.description || 'Failed to create Razorpay order' }));
+                    return;
+                  }
+                  res.writeHead(200, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ success: true, orderId: rzpData.id, amount: rzpData.amount, currency: rzpData.currency }));
+                } catch (e) {
+                  res.writeHead(400, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ success: false, error: 'Invalid request' }));
+                }
+              });
+              return;
+            }
+
+            // Handle Verify Razorpay Payment (LOCAL DEV MOCK) - identical
+            // signature check to api/verify-razorpay-payment.js.
+            if (req.url && req.url.includes('/api/verify-razorpay-payment') && req.method === 'POST') {
+              let body = '';
+              req.on('data', chunk => { body += chunk.toString(); });
+              req.on('end', () => {
+                const keySecret = env.RAZORPAY_KEY_SECRET;
+                if (!keySecret) {
+                  res.writeHead(500, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ success: false, error: 'Razorpay is not configured (RAZORPAY_KEY_SECRET missing from .env.local).' }));
+                  return;
+                }
+                try {
+                  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = JSON.parse(body);
+                  const expected = crypto
+                    .createHmac('sha256', keySecret)
+                    .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+                    .digest('hex');
+                  const valid = expected === razorpay_signature;
+                  res.writeHead(valid ? 200 : 400, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ success: valid, valid }));
+                } catch (e) {
+                  res.writeHead(400, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ success: false, error: 'Invalid request' }));
+                }
+              });
+              return;
+            }
+
             // Handle POST Send Push Notification (LOCAL DEV MOCK)
             if (req.url && req.url.includes('/api/send-push') && req.method === 'POST') {
               let body = '';
@@ -179,9 +248,6 @@ export default defineConfig(({mode}) => {
         }
       }
     ],
-    define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

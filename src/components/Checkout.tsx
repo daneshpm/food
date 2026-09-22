@@ -164,7 +164,8 @@ export default function Checkout() {
   const [useWallet, setUseWallet] = useState(false);
   const [customWalletAmount, setCustomWalletAmount] = useState('');
 
-  const [paymentMethod, setPaymentMethod] = useState<'gpay' | 'phonepe' | 'online' | 'cod'>('online');
+  const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID as string | undefined;
+  const [paymentMethod, setPaymentMethod] = useState<'gpay' | 'phonepe' | 'online' | 'cod'>(razorpayKeyId ? 'online' : 'cod');
   const [couponInput, setCouponInput] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState('');
 
@@ -529,6 +530,11 @@ export default function Checkout() {
     };
 
     if (payableAmount > 0 && paymentMethod !== 'cod') {
+      if (!razorpayKeyId) {
+        toast.error('Online payment is not configured yet. Please choose Cash on Delivery.');
+        return;
+      }
+
       // Load Razorpay
       const loadRazorpay = () =>
         new Promise<boolean>((resolve) => {
@@ -540,6 +546,29 @@ export default function Checkout() {
         });
 
       setIsSubmitting(true);
+
+      // Create the order server-side first, so the payment signature can
+      // later be verified against an order_id/amount pair the client (web
+      // or native) never had the chance to tamper with.
+      let razorpayOrderId: string;
+      try {
+        const orderRes = await fetch('/api/create-razorpay-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: payableAmount }),
+        });
+        const orderData = await orderRes.json();
+        if (!orderRes.ok || !orderData.success) {
+          throw new Error(orderData.error || 'Failed to start payment');
+        }
+        razorpayOrderId = orderData.orderId;
+      } catch (err) {
+        console.error(err);
+        toast.error('Could not start payment. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
       const loaded = await loadRazorpay();
       if (!loaded) {
         toast.error('Failed to load Razorpay. Check your connection.');
@@ -547,15 +576,45 @@ export default function Checkout() {
         return;
       }
 
+      // Verifies the signature server-side before trusting a payment as
+      // real - shared by both the web handler and the native
+      // payment.success listener below, since both hand back the same
+      // three fields once order_id is set on the checkout options.
+      const verifyAndComplete = async (paymentId: string, orderId: string, signature: string) => {
+        try {
+          const verifyRes = await fetch('/api/verify-razorpay-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: orderId,
+              razorpay_payment_id: paymentId,
+              razorpay_signature: signature,
+            }),
+          });
+          const verifyData = await verifyRes.json();
+          if (!verifyRes.ok || !verifyData.valid) {
+            toast.error('Payment could not be verified. If money was deducted, contact support.');
+            setIsSubmitting(false);
+            return;
+          }
+          await completeOrder(paymentId);
+        } catch (err) {
+          console.error(err);
+          toast.error('Payment verification failed. If money was deducted, contact support.');
+        } finally {
+          setIsSubmitting(false);
+        }
+      };
+
       const baseOptions: any = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_live_T1Y1yu09Jbjo6b',
+        key: razorpayKeyId,
         amount: Math.round(payableAmount * 100),
         currency: 'INR',
         name: 'Mintoo',
         description: 'Food Order',
+        order_id: razorpayOrderId,
         handler: async (response: any) => {
-          await completeOrder(response.razorpay_payment_id);
-          setIsSubmitting(false);
+          await verifyAndComplete(response.razorpay_payment_id, response.razorpay_order_id, response.razorpay_signature);
         },
         prefill: { name: formData.name, contact: formData.phone },
         theme: { color: '#10B981' },
@@ -607,10 +666,22 @@ export default function Checkout() {
 
       const triggerRazorpay = (opts: any) => {
         if (Capacitor.isNativePlatform() && (window as any).RazorpayCheckout) {
-          // Native Razorpay Flow for Capacitor
+          // Native Razorpay Flow for Capacitor - the Cordova/Capacitor
+          // plugin returns the same three fields as the web SDK once
+          // order_id is set on the options, per Razorpay's own docs, but
+          // this hasn't been exercised against a real native build in this
+          // environment (no device/emulator available) - if a real device
+          // test shows razorpay_signature missing here, that needs
+          // investigating before trusting this path, not silently
+          // completing the order unverified.
           (window as any).RazorpayCheckout.on('payment.success', async (successCallback: any) => {
-            await completeOrder(successCallback.razorpay_payment_id);
-            setIsSubmitting(false);
+            if (!successCallback.razorpay_order_id || !successCallback.razorpay_signature) {
+              console.error('Native Razorpay success callback missing order_id/signature - cannot verify:', successCallback);
+              toast.error('Payment could not be verified. If money was deducted, contact support.');
+              setIsSubmitting(false);
+              return;
+            }
+            await verifyAndComplete(successCallback.razorpay_payment_id, successCallback.razorpay_order_id, successCallback.razorpay_signature);
           });
           (window as any).RazorpayCheckout.on('payment.cancel', () => {
             toast.error('Payment Cancelled');
@@ -1134,6 +1205,8 @@ export default function Checkout() {
 
               {/* Modern Payment Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {razorpayKeyId && (
+                <>
                 {/* 1. Google Pay */}
                 <div
                   onClick={() => setPaymentMethod('gpay')}
@@ -1246,6 +1319,8 @@ export default function Checkout() {
                     <span className="px-2 py-0.5 bg-gray-800 rounded text-gray-300 font-extrabold">NetBank</span>
                   </div>
                 </div>
+                </>
+                )}
 
                 {/* 4. Cash on Delivery */}
                 <div
