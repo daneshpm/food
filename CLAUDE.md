@@ -68,7 +68,11 @@ Dual-path in `Checkout.tsx`: web `checkout.razorpay.com/v1/checkout.js` normally
 
 ### Scroll performance
 
-Same root cause as the sibling repo's scroll-jank fix: `backdrop-filter`/`backdrop-blur-*` on a `fixed`/`sticky` element forces the browser to re-sample it on every scroll frame, because native scroll compositing is cheap and blur isn't. Fixed on the four elements that stay on screen *while* content scrolls beneath them: `Header.tsx`, `BottomCartBar.tsx`, `Checkout.tsx`'s bottom CTA bar, and `FoodInfoPage.tsx`'s sticky header. Left alone: every other `backdrop-blur` usage in this codebase is on a modal/overlay (`fixed inset-0` dialogs, popups, toasts) - those pay the blur cost once when they open, not on every scroll frame, so they were never the actual problem. If scroll still feels slow after this, profile before reaching for Lenis/GSAP - they solve a different problem (custom easing/inertia), not compositing cost, and would add more per-frame JS work on top of whatever's actually slow.
+Same root cause as the sibling repo's scroll-jank fix: `backdrop-filter`/`backdrop-blur-*` on a `fixed`/`sticky` element forces the browser to re-sample it on every scroll frame, because native scroll compositing is cheap and blur isn't. Fixed on the four elements that stay on screen *while* content scrolls beneath them: `Header.tsx`, `BottomCartBar.tsx`, `Checkout.tsx`'s bottom CTA bar, and `FoodInfoPage.tsx`'s sticky header.
+
+A second, larger source found afterward: the small "Fast"/"Hot"/veg-indicator badges drawn on *every* product card in `HomePage.tsx`'s two grids and `CategoryPage.tsx`'s grid also used `backdrop-blur-*`. These aren't fixed elements, but they're rendered once per item with no virtualization - a menu with 40+ items means 80-120+ blurred layers the browser has to keep re-compositing as the whole grid scrolls, which in practice costs more than the four single fixed-position instances combined. Removed `backdrop-blur` from all of them and bumped the badge background opacity (e.g. `/85` → `/95`, `/60` → `/75`) to keep the same visual weight without the blur.
+
+Left alone: every other `backdrop-blur` usage in this codebase is on a modal/overlay (`fixed inset-0` dialogs, popups, toasts) or a single non-repeated instance (e.g. `FoodInfoPage.tsx`'s own badges, `HomePage.tsx`'s location-picker chip) - those pay the blur cost once when they open/render, not per-card times the length of a scrolling grid, so they were never the actual problem. If scroll still feels slow after this, profile before reaching for Lenis/GSAP - they solve a different problem (custom easing/inertia), not compositing cost, and would add more per-frame JS work on top of whatever's actually slow.
 
 Also added `loading="lazy"` to the repeated product-image `<img>` tags in `HomePage.tsx` and `CategoryPage.tsx` (the menu/category grids) - none of them had it, meaning every image on the page loaded eagerly regardless of scroll position. Left the hero banner and category icon strip eager (above the fold, small fixed count).
 
@@ -79,6 +83,7 @@ Fixed 2026-09-22 (see Upgrade log for detail): the `HotelLogin.tsx` plaintext-pa
 Still open:
 1. **No password-reset UI for hotel accounts beyond a single "Reset Password" button** in `AdminPage.tsx`'s hotel list (uses a browser `prompt()`, not a proper form) - functional but minimal.
 2. **The native (Capacitor/Cordova) Razorpay payment-verification path is unverified against a real device/emulator** - no Android device or emulator available in this environment. The code assumes the native plugin returns `razorpay_order_id`/`razorpay_signature` alongside `razorpay_payment_id` once `order_id` is set on the checkout options (per Razorpay's own docs, and consistent with the web SDK), and fails closed (shows an error, does not complete the order) if those fields are missing rather than trusting an unverified payment - but this needs a real native build to confirm it actually works end to end, not just that it fails safely.
+3. **`npm audit` reports 17 pre-existing vulnerabilities** (8 moderate, 9 high) as of 2026-09-22, all transitive (build tooling and `firebase-admin`'s `@google-cloud/storage` dependency chain: `xmldom`, `baseline-browser-mapping`, `brace-expansion`, `browserslist`, `fast-uri`, `fast-xml-parser`, `nanoid`, `postcss`, `react-router`). Same class of finding as the sibling repo. Not force-fixed - `npm audit fix --force` would major-version-bump `react-router` and other core deps with no guarantee of a clean upgrade; needs a deliberate, tested pass with the owner's sign-off, not an automatic one.
 
 ## Tech stack & tools in use
 
@@ -95,6 +100,12 @@ Still open:
 - **Image tooling**: `sharp` powers `scripts/optimize-images.mjs` and `scripts/generate-icons.mjs`
 
 ## Upgrade log
+
+- **2026-09-22 (5)** — Customer storefront visual/performance pass (following up on the dashboard-only pass in (3), now covering `HomePage.tsx`/`CategoryPage.tsx`/`Checkout.tsx`):
+  - Found and removed `backdrop-blur` from the per-product-card badges in `HomePage.tsx` (both grids) and `CategoryPage.tsx` - a bigger scroll-jank contributor than the four fixed-element instances fixed in (2), since it repeats once per rendered card with no virtualization. See the updated "Scroll performance" section above.
+  - Evaluated the storefront for the same "feels AI-generated" markers already fixed in the dashboards (emoji-as-icon, hardcoded defaults, plaintext auth) - found none: the "MINTOO" logo treatment is deliberate brand identity (not a candidate for a GradientText-style swap), and the emoji used in toasts/badges/Telegram messages is consistent existing brand voice across the whole app, not a one-off AI-slop pattern like the dashboard nav emoji were - left both alone rather than changing them without a clear defect to fix.
+  - Ran `npm audit`: 17 pre-existing transitive vulnerabilities found, not fixed - see Known issues above for why.
+  - Verified with `tsc --noEmit` and a full `vite build`.
 
 - **2026-09-22 (4)** — Fixed the last two Known Issues from the 2026-09-21 audit: the hardcoded live Razorpay key fallback and missing payment verification, for both the web and native (Capacitor/Cordova) checkout paths in `Checkout.tsx`.
   - New `api/create-razorpay-order.js` (creates the order server-side before checkout opens) and `api/verify-razorpay-payment.js` (verifies the HMAC-SHA256 signature after payment) - neither needs `firebase-admin`, so plain `.js` (ESM) is fine, unlike the auth-related endpoints.

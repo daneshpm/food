@@ -584,16 +584,16 @@ export default function HomePage() {
 
                 {/* Fast Delivery & Fresh & Hot Badge Overlay */}
                 <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
-                  <span className="bg-[#121212]/85 backdrop-blur-md text-[#39B54A] text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#39B54A]/25">
+                  <span className="bg-[#121212]/95 text-[#39B54A] text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#39B54A]/25">
                     ⚡ Fast
                   </span>
-                  <span className="bg-[#121212]/85 backdrop-blur-md text-[#E53E3E] text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#E53E3E]/25">
+                  <span className="bg-[#121212]/95 text-[#E53E3E] text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#E53E3E]/25">
                     🔥 Hot
                   </span>
                 </div>
 
                 {/* Veg/Non-Veg Indicator at Top-Right */}
-                <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#121212]/85 backdrop-blur-sm p-1 rounded-md border border-white/10 shadow-md">
+                <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#121212]/95 p-1 rounded-md border border-white/10 shadow-md">
                   <div className={`w-2.5 h-2.5 border flex items-center justify-center rounded-[2px] p-[1px] ${
                     item.isVeg ? 'border-[#39B54A]' : 'border-[#E53E3E]'
                   }`}>
@@ -692,11 +692,11 @@ export default function HomePage() {
                 {/* Veg/Non-Veg Badge */}
                 <div className="absolute top-2.5 left-2.5 z-10 animate-fadeIn">
                   {item.isVeg ? (
-                    <div className="w-4.5 h-4.5 bg-black/60 backdrop-blur-md rounded-md flex items-center justify-center border border-green-500/30">
+                    <div className="w-4.5 h-4.5 bg-black/75 rounded-md flex items-center justify-center border border-green-500/30">
                       <div className="w-2 h-2 rounded-full bg-green-500" />
                     </div>
                   ) : (
-                    <div className="w-4.5 h-4.5 bg-black/60 backdrop-blur-md rounded-md flex items-center justify-center border border-red-500/30">
+                    <div className="w-4.5 h-4.5 bg-black/75 rounded-md flex items-center justify-center border border-red-500/30">
                       <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
                     </div>
                   )}

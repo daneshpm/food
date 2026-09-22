@@ -195,16 +195,16 @@ export default function CategoryPage() {
 
                   {/* Fast Delivery & Fresh & Hot Badges */}
                   <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
-                    <span className="bg-[#121212]/85 backdrop-blur-md text-[#39B54A] text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#39B54A]/25">
+                    <span className="bg-[#121212]/95 text-[#39B54A] text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#39B54A]/25">
                       ⚡ Fast
                     </span>
-                    <span className="bg-[#121212]/85 backdrop-blur-md text-[#E53E3E] text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#E53E3E]/25">
+                    <span className="bg-[#121212]/95 text-[#E53E3E] text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#E53E3E]/25">
                       🔥 Hot
                     </span>
                   </div>
 
                   {/* Veg/Non-Veg Badge */}
-                  <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#121212]/85 backdrop-blur-sm p-1 rounded-md border border-white/10 shadow-md">
+                  <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#121212]/95 p-1 rounded-md border border-white/10 shadow-md">
                     <div className={`w-2.5 h-2.5 border flex items-center justify-center rounded-[2px] p-[1px] ${
                       item.isVeg ? 'border-[#39B54A]' : 'border-[#E53E3E]'
                     }`}>
