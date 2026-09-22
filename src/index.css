@@ -5,29 +5,33 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Outfit", "Inter", sans-serif;
 
-  /* Indigo/violet/cyan "SaaS" theme - the primary brand/interactive accent.
+  /* Muted indigo/slate "SaaS" theme - the primary brand/interactive accent.
+     Kept deliberately soft/desaturated (closer to Linear/Vercel) rather than
+     a saturated neon color - a dark background plus a vivid accent reads as
+     "bright" regardless of hue, which is exactly the feedback that moved this
+     off the previous vivid #6366F1/#22D3EE pairing.
      `green-*` below is deliberately kept as a SEPARATE, real green scale for
      veg indicators and price/money display - those carry meaning to users
      (green = vegetarian, green = amount) independent of whatever the brand
      accent color is, so they must not move when the brand palette does. */
-  --color-orange-50: #0e0e1f;
-  --color-orange-100: #15153a;
-  --color-orange-200: #1e1e57;
-  --color-orange-300: #2c2c86;
-  --color-orange-400: #4547b8;
-  --color-orange-500: #6366F1; /* Primary Accent Indigo */
-  --color-orange-600: #4F46E5; /* Hover Indigo */
-  --color-orange-700: #4338CA;
-  --color-orange-900: #1e1b4b;
+  --color-orange-50: #13131f;
+  --color-orange-100: #191929;
+  --color-orange-200: #232338;
+  --color-orange-300: #35355a;
+  --color-orange-400: #5c5f9e;
+  --color-orange-500: #8B8FF7; /* Primary Accent - soft muted indigo */
+  --color-orange-600: #7276E8; /* Hover */
+  --color-orange-700: #6266D1;
+  --color-orange-900: #232350;
 
-  --color-cyan-400: #67E8F9;
-  --color-cyan-500: #22D3EE; /* Secondary accent - gradient partner to indigo */
-  --color-cyan-600: #06B6D4;
+  --color-cyan-400: #A5E4E6;
+  --color-cyan-500: #7DD3D8; /* Secondary accent - muted teal, gradient partner */
+  --color-cyan-600: #5FB8BE;
 
-  --color-gray-50: #07070d;    /* Near-black background, faint violet tint */
-  --color-gray-100: #12121f;   /* Dark surface/card, faint violet tint */
-  --color-gray-200: #1c1c2e;   /* Subtle border/divider */
-  --color-gray-300: #29293f;
+  --color-gray-50: #0a0a12;    /* Near-black background, faint slate tint */
+  --color-gray-100: #14141f;   /* Dark surface/card, faint slate tint */
+  --color-gray-200: #1e1e2c;   /* Subtle border/divider */
+  --color-gray-300: #2a2a3c;
   --color-gray-400: #46465e;
   --color-gray-500: #9ca3af;   /* Secondary Text */
   --color-gray-600: #a3a3a3;
@@ -40,22 +44,22 @@
   --color-green-500: #39B54A;  /* Veg / success / money - kept as real green on purpose */
   --color-green-600: #2e9d3d;
 
-  /* Brand accent (indigo -> cyan gradient system) */
-  --color-brand: #6366F1;
-  --color-brand-hover: #4F46E5;
-  --color-brand-glow: rgba(99, 102, 241, 0.18);
-  --color-accent: #22D3EE;
-  --color-accent-glow: rgba(34, 211, 238, 0.18);
+  /* Brand accent (muted indigo -> teal gradient system) */
+  --color-brand: #8B8FF7;
+  --color-brand-hover: #7276E8;
+  --color-brand-glow: rgba(139, 143, 247, 0.10);
+  --color-accent: #7DD3D8;
+  --color-accent-glow: rgba(125, 211, 216, 0.10);
 
-  --gradient-brand: linear-gradient(135deg, #6366F1 0%, #22D3EE 100%);
-  --gradient-brand-soft: linear-gradient(135deg, rgba(99, 102, 241, 0.16) 0%, rgba(34, 211, 238, 0.12) 100%);
-  --gradient-mesh: radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.22) 0%, transparent 45%), radial-gradient(circle at 85% 20%, rgba(34, 211, 238, 0.14) 0%, transparent 40%), #07070d;
+  --gradient-brand: linear-gradient(135deg, #8B8FF7 0%, #7DD3D8 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(139, 143, 247, 0.12) 0%, rgba(125, 211, 216, 0.08) 100%);
+  --gradient-mesh: radial-gradient(circle at 15% 0%, rgba(139, 143, 247, 0.10) 0%, transparent 45%), radial-gradient(circle at 85% 20%, rgba(125, 211, 216, 0.07) 0%, transparent 40%), #0a0a12;
 
-  --color-gold: #6366F1;
-  --color-gold-soft: #A5B4FC;
+  --color-gold: #8B8FF7;
+  --color-gold-soft: #C7C9FB;
 
-  --color-matte-black: #07070d;
-  --color-dark-surface: #12121f;
+  --color-matte-black: #0a0a12;
+  --color-dark-surface: #14141f;
 
   --color-text-main: #ffffff;
   --color-text-muted: #9ca3af;
@@ -76,7 +80,7 @@
 
 @layer components {
   .luxury-card {
-    @apply bg-[#12121f] border border-white/5 relative overflow-hidden transition-all duration-300 rounded-3xl;
+    @apply bg-[#14141f] border border-white/5 relative overflow-hidden transition-all duration-300 rounded-3xl;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   }
 
@@ -94,7 +98,7 @@
   }
 
   .glass-nav {
-    @apply bg-[#07070d]/90 backdrop-blur-xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.5)];
+    @apply bg-[#0a0a12]/90 backdrop-blur-xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.5)];
   }
 
   /* Glass morphism surfaces - reserved for single-instance UI (headers, hero
@@ -157,7 +161,7 @@
 
 /* Global utility overrides for absolute pixel-perfect dark-theme compliance and readability */
 .bg-white {
-  background-color: #12121f !important;
+  background-color: #14141f !important;
 }
 
 .text-luxury-gold {
@@ -178,11 +182,11 @@
 }
 
 .bg-gray-50, .bg-slate-50, .bg-neutral-50 {
-  background-color: #07070d !important;
+  background-color: #0a0a12 !important;
 }
 
 .bg-gray-100, .bg-slate-100, .bg-neutral-100 {
-  background-color: #12121f !important;
+  background-color: #14141f !important;
 }
 
 /* Animations */

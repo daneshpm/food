@@ -31,7 +31,7 @@ export default function OfflineGate({ children }: OfflineGateProps) {
       const response = await fetch(`./index.html?t=${Date.now()}`, { method: 'HEAD', cache: 'no-store' });
       if (response.ok) {
         setIsOffline(false);
-        toast.success('Back online! Mintoo is ready 🚀');
+        toast.success('Back online! Mintoo is ready');
       } else {
         setIsOffline(true);
         toast.error('Still offline. Please enable Wi-Fi or Mobile Data.');
@@ -106,7 +106,7 @@ export default function OfflineGate({ children }: OfflineGateProps) {
             className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-xl shadow-emerald-500/25 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isChecking ? 'animate-spin' : ''}`} />
-            {isChecking ? 'Checking Internet Connection...' : 'Try Reconnecting 🔄'}
+            {isChecking ? 'Checking Internet Connection...' : 'Try Reconnecting'}
           </button>
         </motion.div>
       </div>

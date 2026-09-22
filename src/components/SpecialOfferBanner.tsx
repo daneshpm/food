@@ -38,8 +38,7 @@ export default function SpecialOfferBanner() {
   const handleAddToCart = () => {
     if (specialItem) {
       addItem(specialItem);
-      toast.success(`${specialItem.name} added to your plate! 🚀`, {
-        icon: '🍱',
+      toast.success(`${specialItem.name} added to your plate!`, {
         style: {
           background: '#161A22',
           color: '#fff',

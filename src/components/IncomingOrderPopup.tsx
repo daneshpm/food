@@ -77,7 +77,7 @@ export default function IncomingOrderPopup({
         <div className="bg-gradient-to-r from-[#F97316] to-red-500 p-6 text-white text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-white/20 animate-pulse" />
           <h2 className="text-2xl font-black uppercase tracking-widest relative z-10 flex items-center justify-center gap-2">
-            🔥 {mode === 'hotel' ? 'New Order' : 'Delivery Request'}
+ {mode === 'hotel' ? 'New Order' : 'Delivery Request'}
           </h2>
         </div>
 

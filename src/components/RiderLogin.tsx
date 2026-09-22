@@ -60,7 +60,7 @@ export default function RiderLogin() {
       }
 
       if (isRider) {
-        toast.success(`Welcome back! Redirecting to Rider panel... 🎯`);
+        toast.success(`Welcome back! Redirecting to Rider panel...`);
         setTimeout(() => navigate('/delivery'), 800);
       } else {
         await signOut(auth);

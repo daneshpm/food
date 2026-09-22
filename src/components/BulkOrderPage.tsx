@@ -58,8 +58,7 @@ export default function BulkOrderPage() {
     }
     addItem(product, undefined, 1);
 
-    toast.success(`${product.name} Added! 🎈`, {
-      icon: '🎉',
+    toast.success(`${product.name} Added!`, {
       style: {
         background: '#161A22',
         color: '#FFD700',
@@ -145,7 +144,7 @@ export default function BulkOrderPage() {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
           <div className="space-y-1 relative z-10 text-center sm:text-left">
-            <span className="text-[9px] font-black uppercase tracking-widest text-purple-500 bg-purple-900/30 px-3 py-1 rounded-full border border-purple-500/20">Mintoo Bulk ✨</span>
+            <span className="text-[9px] font-black uppercase tracking-widest text-purple-500 bg-purple-900/30 px-3 py-1 rounded-full border border-purple-500/20">Mintoo Bulk</span>
             <h3 className="text-xl font-black italic uppercase tracking-tighter text-gray-900 mt-2">Want a gorgeous live setup or counter?</h3>
             <p className="text-gray-500 text-xs font-bold">Let our decoration team setup the perfect celebration for you!</p>
           </div>
@@ -153,7 +152,7 @@ export default function BulkOrderPage() {
             onClick={() => navigate('/celebration')}
             className="px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 active:scale-95 transition-all rounded-2xl font-black text-xs uppercase tracking-widest text-gray-900 shadow-sm shrink-0"
           >
-            Book A Setup 🏛️
+            Book A Setup 
           </button>
         </motion.div>
 
@@ -263,7 +262,7 @@ export default function BulkOrderPage() {
                     <PartyPopper className="w-5 h-5 text-brand" />
                   </div>
                   <div>
-                    <h3 className="font-black italic uppercase tracking-tighter text-xl">Complete Your Celebration 🎉</h3>
+                    <h3 className="font-black italic uppercase tracking-tighter text-xl">Complete Your Celebration</h3>
                     <p className="text-[9px] font-bold uppercase tracking-widest text-gray-500">Highly recommended addons</p>
                   </div>
                 </div>

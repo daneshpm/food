@@ -266,8 +266,8 @@ export default function HomePage() {
 
   const handleAddPromoMoney = async () => {
     try {
-      await addWalletBalance(50, 'Claimed promo ₹50 bonus! 🎁');
-      toast.success('₹50 Promo Bonus added to your wallet! 💰');
+      await addWalletBalance(50, 'Claimed promo ₹50 bonus!');
+      toast.success('₹50 Promo Bonus added to your wallet!');
       playSound(SOUNDS.CLICK);
     } catch (error) {
       toast.error('Failed to claim bonus.');
@@ -325,7 +325,7 @@ export default function HomePage() {
             playSound(SOUNDS.CLICK);
             navigate('/profile');
           }}
-          className="relative w-10 h-10 rounded-full border-2 border-brand/30 hover:border-brand transition-colors cursor-pointer overflow-hidden shadow-lg bg-[#12121f] flex items-center justify-center shrink-0 mt-1 active:scale-95 duration-200"
+          className="relative w-10 h-10 rounded-full border-2 border-brand/30 hover:border-brand transition-colors cursor-pointer overflow-hidden shadow-lg bg-[#14141f] flex items-center justify-center shrink-0 mt-1 active:scale-95 duration-200"
         >
           {profile && (profile as any)?.photoURL ? (
             <img
@@ -334,7 +334,7 @@ export default function HomePage() {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand/15 to-[#12121f] text-white">
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand/15 to-[#14141f] text-white">
               <span className="text-xs font-black uppercase text-brand">
                 {profile?.name ? profile.name.slice(0, 2) : 'ME'}
               </span>
@@ -391,7 +391,7 @@ export default function HomePage() {
           className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 border transition-all duration-300 cursor-pointer ${
             dietPreference === 'both'
               ? 'bg-white text-black border-white shadow-[0_4px_15px_rgba(255,255,255,0.15)] scale-[1.02]'
-              : 'bg-[#12121f] text-gray-400 border-white/5 hover:border-white/10'
+              : 'bg-[#14141f] text-gray-400 border-white/5 hover:border-white/10'
           }`}
         >
           <div className="flex gap-0.5">
@@ -410,7 +410,7 @@ export default function HomePage() {
           className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 border transition-all duration-300 cursor-pointer ${
             dietPreference === 'veg'
               ? 'bg-[#39B54A] text-white border-[#39B54A] shadow-[0_4px_15px_rgba(57,181,74,0.3)] scale-[1.02]'
-              : 'bg-[#12121f] text-[#39B54A] border-[#39B54A]/20 hover:bg-[#39B54A]/5'
+              : 'bg-[#14141f] text-[#39B54A] border-[#39B54A]/20 hover:bg-[#39B54A]/5'
           }`}
         >
           {/* Standard Green Veg Icon */}
@@ -429,7 +429,7 @@ export default function HomePage() {
           className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 border transition-all duration-300 cursor-pointer ${
             dietPreference === 'non-veg'
               ? 'bg-[#E53E3E] text-white border-[#E53E3E] shadow-[0_4px_15px_rgba(229,62,62,0.3)] scale-[1.02]'
-              : 'bg-[#12121f] text-[#E53E3E] border-[#E53E3E]/20 hover:bg-[#E53E3E]/5'
+              : 'bg-[#14141f] text-[#E53E3E] border-[#E53E3E]/20 hover:bg-[#E53E3E]/5'
           }`}
         >
           {/* Standard Red Non-Veg Icon */}
@@ -447,7 +447,7 @@ export default function HomePage() {
 
       {/* Hero Promo Banner (Carousel) */}
       <div className="px-4 py-3">
-        <div className="relative w-full aspect-[3/2] overflow-hidden rounded-[28px] border border-white/5 bg-[#12121f] shadow-xl group">
+        <div className="relative w-full aspect-[3/2] overflow-hidden rounded-[28px] border border-white/5 bg-[#14141f] shadow-xl group">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSlide}
@@ -554,7 +554,7 @@ export default function HomePage() {
               setActiveCategory("All Dishes");
               setSearchQuery("");
               setDietPreference("both");
-              toast.success('Showing all delicious items! 🍔');
+              toast.success('Showing all delicious items!');
               playSound(SOUNDS.CLICK);
             }}
             className="text-xs font-semibold text-brand hover:underline cursor-pointer flex items-center gap-0.5"
@@ -571,7 +571,7 @@ export default function HomePage() {
                 playSound(SOUNDS.CLICK);
                 navigate(`/food/${item.id}`);
               }}
-              className="relative w-[140px] bg-[#12121f] border border-white/5 rounded-[24px] overflow-hidden flex flex-col shrink-0 group transition-all duration-300 hover:border-white/10 cursor-pointer"
+              className="relative w-[140px] bg-[#14141f] border border-white/5 rounded-[24px] overflow-hidden flex flex-col shrink-0 group transition-all duration-300 hover:border-white/10 cursor-pointer"
             >
               {/* Square Image container */}
               <div className="w-full aspect-square relative overflow-hidden bg-neutral-900 shrink-0">
@@ -584,16 +584,16 @@ export default function HomePage() {
 
                 {/* Fast Delivery & Fresh & Hot Badge Overlay */}
                 <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
-                  <span className="bg-[#12121f]/95 text-accent text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-accent/25">
-                    ⚡ Fast
+                  <span className="bg-[#14141f]/95 text-accent text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-accent/25">
+ Fast
                   </span>
-                  <span className="bg-[#12121f]/95 text-[#E53E3E] text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#E53E3E]/25">
-                    🔥 Hot
+                  <span className="bg-[#14141f]/95 text-[#E53E3E] text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#E53E3E]/25">
+ Hot
                   </span>
                 </div>
 
                 {/* Veg/Non-Veg Indicator at Top-Right */}
-                <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#12121f]/95 p-1 rounded-md border border-white/10 shadow-md">
+                <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#14141f]/95 p-1 rounded-md border border-white/10 shadow-md">
                   <div className={`w-2.5 h-2.5 border flex items-center justify-center rounded-[2px] p-[1px] ${
                     item.isVeg ? 'border-[#39B54A]' : 'border-[#E53E3E]'
                   }`}>
@@ -678,7 +678,7 @@ export default function HomePage() {
                 playSound(SOUNDS.CLICK);
                 navigate(`/food/${item.id}`);
               }}
-              className="relative bg-[#12121f] border border-white/5 rounded-[24px] overflow-hidden flex flex-col group transition-all duration-300 hover:border-white/10 cursor-pointer"
+              className="relative bg-[#14141f] border border-white/5 rounded-[24px] overflow-hidden flex flex-col group transition-all duration-300 hover:border-white/10 cursor-pointer"
             >
               {/* Image Container with Badges */}
               <div className="w-full aspect-[4/3] relative overflow-hidden bg-neutral-900 shrink-0">

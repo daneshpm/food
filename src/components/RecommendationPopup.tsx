@@ -29,7 +29,6 @@ export default function RecommendationPopup({ result, triggerId, onClose }: Prop
     recordComboClick(triggerId, product.id!);
     toast.success(`${product.name} added!`, {
       style: { background: '#161A22', color: '#fff', border: '1px solid #FF4D00' },
-      icon: '✅',
       duration: 1500,
     });
   };
@@ -120,7 +119,7 @@ export default function RecommendationPopup({ result, triggerId, onClose }: Prop
 
           {/* Footer */}
           <div className="flex items-center justify-between px-3 py-1.5 border-t border-gray-200">
-            <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">🤖 Mintoo AI</p>
+            <p className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Mintoo AI</p>
             <button onClick={onClose} className="text-[9px] font-black text-brand/70 hover:text-brand uppercase tracking-widest">
               Dismiss
             </button>

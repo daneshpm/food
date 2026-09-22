@@ -128,7 +128,7 @@ export default function MaintenanceGate({ children }: { children: React.ReactNod
             Sorry, we are off today. Come tomorrow!
             <br />
             <span className="text-gray-500 text-xs block mt-4 font-normal italic">
-              Thank you so much for your kind patience and support! 🙏
+              Thank you so much for your kind patience and support! 
             </span>
           </motion.p>
         </div>

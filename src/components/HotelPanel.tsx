@@ -402,7 +402,7 @@ export default function HotelPanel() {
                     </ul>
                     {order.instructions && (
                       <p className="mt-3 text-xs text-red-600 font-bold bg-red-50 p-2 rounded-lg border border-red-100">
-                        📝 {order.instructions}
+ {order.instructions}
                       </p>
                     )}
                   </div>

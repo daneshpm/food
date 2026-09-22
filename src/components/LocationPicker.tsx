@@ -163,15 +163,14 @@ export default function LocationPicker() {
 
       if (locationObj.accuracy && locationObj.accuracy > 20) {
         toast('GPS Accuracy ~' + locationObj.accuracy + 'm. Drag pin on map for exact precision!', {
-          icon: '📍',
           duration: 4000,
         });
       }
 
       if (locationObj.isDeliverable) {
-        toast.success('Location detected! Fill PG/House details to finish 📍');
+        toast.success('Location detected! Fill PG/House details to finish');
       } else {
-        toast('Serving BTM Layout & surrounding fast delivery zone!', { icon: 'ℹ️' });
+        toast('Serving BTM Layout & surrounding fast delivery zone!');
       }
       setActivePickerTab('details');
     } catch (err: any) {
@@ -193,7 +192,7 @@ export default function LocationPicker() {
   // Select Saved Address Card
   const handleSelectSavedAddress = (saved: DeliveryLocation) => {
     setDeliveryLocation(saved);
-    toast.success(`Location set to ${saved.tag || 'Saved Address'} 📍`);
+    toast.success(`Location set to ${saved.tag || 'Saved Address'}`);
     closeLocationPicker();
   };
 
@@ -271,9 +270,9 @@ export default function LocationPicker() {
     saveAddress(finalAddressObj);
 
     if (isDeliverable) {
-      toast.success(`Delivery address saved! (${distFromMetroGateB} km from BTM Metro Gate B) 📍`);
+      toast.success(`Delivery address saved! (${distFromMetroGateB} km from BTM Metro Gate B)`);
     } else {
-      toast('Address saved! (Note: Location is outside 15-min delivery zone)', { icon: '⚠️' });
+      toast('Address saved! (Note: Location is outside 15-min delivery zone)');
     }
     closeLocationPicker();
   };

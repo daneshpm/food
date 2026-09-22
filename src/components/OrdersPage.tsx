@@ -215,7 +215,7 @@ export default function OrdersPage() {
           onClick={() => navigate('/home')} 
           className="px-8 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer"
         >
-          Explore Yummy Menu 🍔
+          Explore Yummy Menu 
         </button>
       </div>
     );
@@ -251,7 +251,7 @@ export default function OrdersPage() {
               onClick={() => navigate('/home')} 
               className="mt-4 px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold uppercase text-xs rounded-2xl shadow-md transition-all cursor-pointer"
             >
-              Order Delicious Food Now 🍕
+              Order Delicious Food Now 
             </button>
           </div>
         ) : (
@@ -305,7 +305,7 @@ export default function OrdersPage() {
                         onClick={() => navigate(`/track/${order.id}`)}
                         className="w-full text-center py-2.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white border border-emerald-200 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2"
                       >
-                        📍 Track Order Live
+ Track Order Live
                       </button>
                     )}
 

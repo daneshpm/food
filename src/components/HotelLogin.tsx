@@ -48,7 +48,7 @@ export default function HotelLogin() {
       // stashing an unverified session object in localStorage.
       await signInWithCustomToken(auth, data.customToken);
 
-      toast.success(`Welcome back! Redirecting to Kitchen panel... 🎯`);
+      toast.success(`Welcome back! Redirecting to Kitchen panel...`);
       setTimeout(() => navigate('/hotel'), 800);
     } catch (err: any) {
       toast.error('An error occurred during login.');

@@ -77,7 +77,7 @@ export default function AdminPage() {
     localStorage.setItem('moms_magic_king_greetings', JSON.stringify(kingLines));
     localStorage.setItem('moms_magic_queen_greetings', JSON.stringify(queenLines));
     localStorage.setItem('moms_magic_anon_greetings', JSON.stringify(anonLines));
-    toast.success('👑 Royal & Anonymous Greeting lines updated successfully! 🎉');
+    toast.success('Royal & Anonymous Greeting lines updated successfully!');
   };
 
   const handleResetGreetings = () => {
@@ -247,7 +247,7 @@ export default function AdminPage() {
           riderName: selectedRider?.name || 'Rider',
           riderPhone: selectedRider?.phone || ''
         });
-        toast.success(`Assigned rider: ${selectedRider?.name || 'Partner'}! 🛵`);
+        toast.success(`Assigned rider: ${selectedRider?.name || 'Partner'}!`);
       }
     } catch (err) {
       toast.error("Failed to assign rider.");
@@ -381,7 +381,7 @@ export default function AdminPage() {
         toast.error(passwordData.message || "Hotel saved, but setting its login password failed - set it again from here.");
       }
 
-      toast.success('Hotel registered and Menu Item added successfully! 🎉');
+      toast.success('Hotel registered and Menu Item added successfully!');
       setNewHotelName('');
       setNewHotelFood('');
       setSelectedCategory('');
@@ -392,7 +392,7 @@ export default function AdminPage() {
       setNewHotelEmail('hotel1@minto.com');
     } catch (err) {
       console.warn('Firestore write failed, falling back to local cache storage:', err);
-      toast.success('Hotel saved to offline local cache successfully! 💾');
+      toast.success('Hotel saved to offline local cache successfully!');
       setNewHotelName('');
       setNewHotelFood('');
       setSelectedCategory('');
@@ -611,7 +611,7 @@ export default function AdminPage() {
         }
       }
 
-      toast.success('Food item updated successfully! 🎯');
+      toast.success('Food item updated successfully!');
       setEditingItem(null);
       setIsEditDrawerOpen(false);
     } catch (err) {
@@ -687,7 +687,7 @@ export default function AdminPage() {
         <div className="bg-white rounded-[35px] p-6 sm:p-8 border border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-sm text-xl">
-              👑
+ 
             </div>
             <div>
               <h2 className="text-2xl font-black italic uppercase text-gray-900 tracking-tighter">Admin Dashboard</h2>
@@ -761,7 +761,7 @@ export default function AdminPage() {
               activeTab === 'greetings' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'
             }`}
           >
-            👑 Greetings Manager
+ Greetings Manager
           </button>
         </div>
 
@@ -895,7 +895,7 @@ export default function AdminPage() {
                             <option value="">-- Select Rider --</option>
                             {riders.map(r => (
                               <option key={r.id} value={r.id}>
-                                {r.name} ({r.status === 'online' ? '🟢 Online' : '🔴 Offline'})
+                                {r.name} ({r.status === 'online' ? 'Online' : 'Offline'})
                               </option>
                             ))}
                           </select>
@@ -1238,7 +1238,7 @@ export default function AdminPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
               <div>
                 <h3 className="text-xl font-black uppercase tracking-tight text-gray-900 flex items-center gap-2">
-                  👑 Royal Greeting Lines Manager
+ Royal Greeting Lines Manager
                 </h3>
                 <p className="text-xs text-gray-500 font-semibold mt-1">
                   Customize the funny rotating dialogues displayed on the Hero section for King & Queen users!
@@ -1262,7 +1262,7 @@ export default function AdminPage() {
                 <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3 shadow-sm">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-black text-amber-600 uppercase tracking-widest flex items-center gap-1.5">
-                      👑 King Lines (1 per line)
+ King Lines (1 per line)
                     </label>
                     <span className="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
                       {kingGreetingsText.split('\n').filter(l => l.trim()).length}
@@ -1284,7 +1284,7 @@ export default function AdminPage() {
                 <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3 shadow-sm">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-black text-pink-600 uppercase tracking-widest flex items-center gap-1.5">
-                      👑 Queen Lines (1 per line)
+ Queen Lines (1 per line)
                     </label>
                     <span className="bg-pink-100 text-pink-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
                       {queenGreetingsText.split('\n').filter(l => l.trim()).length}
@@ -1306,7 +1306,7 @@ export default function AdminPage() {
                 <div className="bg-gray-50 border border-gray-200 rounded-2xl p-5 space-y-3 shadow-sm">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-black text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
-                      📱 Default Lines (Unregistered)
+ Default Lines (Unregistered)
                     </label>
                     <span className="bg-blue-100 text-blue-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
                       {anonGreetingsText.split('\n').filter(l => l.trim()).length}

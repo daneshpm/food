@@ -141,7 +141,7 @@ export default function AddressMapPicker({ initialLat, initialLng, onConfirmPin 
         });
       }
       setPinAddress(locationObj);
-      toast.success('Centered on your precise GPS location 📍');
+      toast.success('Centered on your precise GPS location');
     } catch (err: any) {
       toast.error('Could not detect location. Please check browser GPS permissions.');
     }
@@ -181,7 +181,7 @@ export default function AddressMapPicker({ initialLat, initialLng, onConfirmPin 
           {/* Pin Instruction Banner while dragging */}
           {isDraggingMap && (
             <div className="absolute -top-10 bg-gray-900/90 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-lg whitespace-nowrap animate-fade-in">
-              Move map to adjust pin 📍
+              Move map to adjust pin 
             </div>
           )}
         </div>
@@ -233,7 +233,7 @@ export default function AddressMapPicker({ initialLat, initialLng, onConfirmPin 
                       ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
                       : 'bg-amber-100 text-amber-800 border border-amber-200'
                   }`}>
-                    {pinAddress.isDeliverable ? '⚡ Serviceable (15 Min)' : '⚠️ Outside Fast Zone'}
+                    {pinAddress.isDeliverable ? 'Serviceable (15 Min)' : 'Outside Fast Zone'}
                   </span>
                 )}
               </div>

@@ -4,8 +4,7 @@ import toast from 'react-hot-toast';
 
 export default function MilkPage() {
   const showComingSoonToast = () => {
-    toast('Coming Soon! In a few days it will be available 🚀', {
-      icon: '⏰',
+    toast('Coming Soon! In a few days it will be available', {
       style: {
         background: '#161A22',
         color: '#FFD700',

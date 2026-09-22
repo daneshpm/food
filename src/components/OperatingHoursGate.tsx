@@ -149,7 +149,7 @@ export default function OperatingHoursGate({ children }: { children: React.React
             transition={{ delay: 0.4 }}
             className="text-4xl md:text-5xl font-black italic tracking-tighter text-gray-900 uppercase leading-none"
           >
-            <>🔴 Mintoo is <br /><span className="text-brand">Currently Closed</span></>
+            <>Mintoo is <br /><span className="text-brand">Currently Closed</span></>
           </motion.h1>
 
           <motion.p

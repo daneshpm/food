@@ -117,7 +117,7 @@ const TrackMap: React.FC<TrackMapProps> = ({ order, rider, mapError }) => {
       const restaurantIcon = L.divIcon({
         html: `
           <div class="relative flex items-center justify-center">
-            <div class="w-11 h-11 rounded-2xl bg-gray-900 border-2 border-amber-400 shadow-2xl flex items-center justify-center text-white text-lg">👨‍🍳</div>
+            <div class="w-11 h-11 rounded-2xl bg-gray-900 border-2 border-amber-400 shadow-2xl flex items-center justify-center text-white text-lg"></div>
             <div class="absolute -bottom-1 w-3 h-3 bg-gray-900 rotate-45 border-r border-b border-amber-400"></div>
           </div>
         `,
@@ -131,7 +131,6 @@ const TrackMap: React.FC<TrackMapProps> = ({ order, rider, mapError }) => {
           <div class="relative flex items-center justify-center">
             <div class="w-11 h-11 rounded-2xl bg-emerald-600 border-2 border-white shadow-2xl flex items-center justify-center text-white text-lg font-bold">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-2xl bg-emerald-400 opacity-30"></span>
-              🏠
             </div>
             <div class="absolute -bottom-1 w-3 h-3 bg-emerald-600 rotate-45 border-r border-b border-white"></div>
           </div>
@@ -146,7 +145,7 @@ const TrackMap: React.FC<TrackMapProps> = ({ order, rider, mapError }) => {
           <div class="relative flex items-center justify-center">
             <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 via-[#F97316] to-amber-400 border-3 border-white shadow-2xl flex items-center justify-center text-white text-xl animate-pulse">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-40"></span>
-              🛵
+ 
             </div>
           </div>
         `,
@@ -319,9 +318,9 @@ const OrderStatusCard: React.FC<OrderStatusCardProps> = ({ order, rider, remaini
             ORDER #{order.id}
           </p>
           <h2 className="text-lg sm:text-xl font-extrabold text-gray-900 leading-tight">
-            {isDelivered ? 'Order Delivered! 🎉' : 
-             order.status === 'Out For Delivery' ? 'Rider is on the way to you! 🛵' : 
-             order.status === 'Preparing' ? 'Chef is cooking your hot meal 👨‍🍳' : 'Order Confirmed'}
+            {isDelivered ? 'Order Delivered!' : 
+             order.status === 'Out For Delivery' ? 'Rider is on the way to you!' : 
+             order.status === 'Preparing' ? 'Chef is cooking your hot meal' : 'Order Confirmed'}
           </h2>
           <p className="text-xs text-gray-500 font-medium">Mintoo Kitchen • BTM Layout</p>
         </div>
@@ -353,7 +352,7 @@ const OrderStatusCard: React.FC<OrderStatusCardProps> = ({ order, rider, remaini
           <div className="flex items-center justify-between w-full gap-2">
             <div className="flex items-center gap-3 text-left min-w-0 flex-1">
               <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center text-lg font-extrabold shadow-md shrink-0">
-                {rider.name ? rider.name.charAt(0).toUpperCase() : '🛵'}
+                {rider.name ? rider.name.charAt(0).toUpperCase() : ''}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Delivery Partner</p>
@@ -379,7 +378,7 @@ const OrderStatusCard: React.FC<OrderStatusCardProps> = ({ order, rider, remaini
           <div className="flex items-center justify-between w-full gap-2">
             <div className="text-left py-1 flex-1 min-w-0">
               <p className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Delivery Partner</p>
-              <h4 className="text-sm font-bold text-gray-900 mt-0.5">Assigning delivery agent... 🛵</h4>
+              <h4 className="text-sm font-bold text-gray-900 mt-0.5">Assigning delivery agent...</h4>
               <p className="text-xs text-gray-500 font-medium truncate">Matching a delivery executive to hand off your meal.</p>
             </div>
           </div>
@@ -531,7 +530,7 @@ export default function TrackingPage() {
   }, [order?.status, rider?.currentLocation]);
 
   const handleManualRefresh = () => {
-    toast.success("GPS location updated! 🛰️");
+    toast.success("GPS location updated!");
   };
 
   const distanceKm = (() => {
@@ -557,7 +556,7 @@ export default function TrackingPage() {
   if (!order) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center p-8 gap-6">
-        <div className="text-5xl">📦</div>
+        <AlertTriangle className="w-12 h-12 text-gray-400" />
         <h2 className="text-2xl font-bold text-gray-900 text-center">Order Not Found</h2>
         <p className="text-gray-500 text-sm font-medium text-center max-w-xs">
           {mapError || "We couldn't find this order."}

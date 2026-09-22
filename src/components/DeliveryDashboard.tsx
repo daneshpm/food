@@ -213,7 +213,7 @@ export default function DeliveryDashboard() {
       await setDoc(riderRef, { phone: newPhone }, { merge: true });
       setRiderProfile((prev: any) => ({ ...prev, phone: newPhone }));
       setShowPhonePrompt(false);
-      toast.success("Phone number saved successfully! 📱");
+      toast.success("Phone number saved successfully!");
     } catch (err) {
       toast.error("Failed to save phone number.");
     }
@@ -384,7 +384,7 @@ export default function DeliveryDashboard() {
       setRiderId(riderData.id);
       setRiderProfile(riderData);
       setIsOnline(true);
-      toast.success("Rider session initialized! 🛵");
+      toast.success("Rider session initialized!");
       setLoginLoading(false);
       return;
     }
@@ -403,7 +403,7 @@ export default function DeliveryDashboard() {
       setRiderId(cred.user.uid);
       setRiderProfile(riderData);
       setIsOnline(true);
-      toast.success("Rider session initialized! 🛵");
+      toast.success("Rider session initialized!");
     } catch (error: any) {
       toast.error(error.message || "Invalid credentials.");
     } finally {
@@ -427,7 +427,7 @@ export default function DeliveryDashboard() {
         const data = riderSnap.data();
         setRiderProfile(data);
         setIsOnline(data.status === 'online');
-        toast.success(`Welcome back, ${data.name || 'Partner'}! 🛵`);
+        toast.success(`Welcome back, ${data.name || 'Partner'}!`);
       } else {
         const initialProfile = {
           name: user.displayName || user.email?.split('@')[0] || 'Rider Partner',
@@ -440,7 +440,7 @@ export default function DeliveryDashboard() {
         await setDoc(riderRef, initialProfile);
         setRiderId(user.uid);
         setRiderProfile(initialProfile);
-        toast.success("Rider profile created successfully! 🎉");
+        toast.success("Rider profile created successfully!");
         if (!initialProfile.phone) {
           setShowPhonePrompt(true);
         }
@@ -485,7 +485,7 @@ export default function DeliveryDashboard() {
       
       setRiderId(user.uid);
       setRiderProfile(initialProfile);
-      toast.success("Rider account registered successfully! 🛵");
+      toast.success("Rider account registered successfully!");
     } catch (err: any) {
       toast.error(err.message || "Registration failed.");
     } finally {
@@ -521,7 +521,7 @@ export default function DeliveryDashboard() {
         name: riderProfile?.name || 'Rider',
         phone: riderProfile?.phone || ''
       }, { merge: true });
-      toast.success(`You are now ${nextStatus ? 'ONLINE 🟢' : 'OFFLINE 🔴'}`);
+      toast.success(`You are now ${nextStatus ? 'ONLINE' : 'OFFLINE'}`);
     } catch (err) {
       toast.error("Failed to update status.");
       setIsOnline(isOnline); // revert
@@ -573,7 +573,7 @@ export default function DeliveryDashboard() {
       if (success) {
         updateLocalOrder(orderId, { riderId: riderId, riderStatus: 'accepted' });
         setAvailableOrders(prev => prev.filter(o => o.id !== orderId));
-        toast.success("Delivery accepted! 🛵");
+        toast.success("Delivery accepted!");
       } else {
         toast.error("Order was already accepted by another rider.");
         setAvailableOrders(prev => prev.filter(o => o.id !== orderId));
@@ -611,7 +611,7 @@ export default function DeliveryDashboard() {
   const handleStartDelivery = async (orderId: string) => {
     updateLocalOrder(orderId, { status: 'Out For Delivery', riderStatus: 'delivering' });
     setAssignedOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Out For Delivery', riderStatus: 'delivering' } : o));
-    toast.success("Delivery run started! Drive safe. 🛵");
+    toast.success("Delivery run started! Drive safe.");
     try {
       const orderRef = doc(db, 'orders', orderId);
       await updateDoc(orderRef, { status: 'Out For Delivery', riderStatus: 'delivering' });
@@ -629,7 +629,7 @@ export default function DeliveryDashboard() {
     updateLocalOrder(orderId, { status: 'delivered', riderStatus: 'delivered', deliveredAt: new Date().toISOString() });
     setAssignedOrders(prev => prev.filter(o => o.id !== orderId));
     setRiderProfile((prev: any) => ({ ...prev, earnings: newEarnings }));
-    toast.success(`Order Delivered successfully! +₹${payout} earned. 💵`);
+    toast.success(`Order Delivered successfully! +₹${payout} earned.`);
     try {
       const orderRef = doc(db, 'orders', orderId);
       await updateDoc(orderRef, { status: 'delivered', riderStatus: 'delivered', deliveredAt: new Date().toISOString() });
@@ -714,11 +714,11 @@ export default function DeliveryDashboard() {
                   setRiderId(riderData.id);
                   setRiderProfile(riderData);
                   setIsOnline(true);
-                  toast.success("Rider Dashboard Active! 🛵");
+                  toast.success("Rider Dashboard Active!");
                 }}
                 className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-wider py-3.5 px-4 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer border border-emerald-400/30"
               >
-                <span>⚡ Instant Rider Login (1-Click Demo)</span>
+                <span>Instant Rider Login (1-Click Demo)</span>
               </button>
 
               <div className="relative flex py-1 items-center">
@@ -871,7 +871,7 @@ export default function DeliveryDashboard() {
             <div className={`w-12 h-12 rounded-full border flex items-center justify-center shadow-lg text-lg font-black shrink-0 ${
               isOnline ? 'bg-orange-50 border-orange-200 text-orange-500 shadow-brand/20' : 'bg-red-500/10 border-red-500/30 text-red-500'
             }`}>
-              {isOnline ? '🟢' : '🔴'}
+              <Power className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-2xl font-black italic uppercase text-gray-900 tracking-tighter">{riderProfile?.name}</h2>
@@ -1143,7 +1143,7 @@ export default function DeliveryDashboard() {
                                 rel="noopener noreferrer"
                                 className="w-full bg-amber-50 border border-amber-300 hover:border-amber-500 text-amber-700 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
                               >
-                                <Compass className="w-4 h-4" /> 🍽️ Navigate to Hotel (Pickup)
+                                <Compass className="w-4 h-4" /> Navigate to Hotel (Pickup)
                               </a>
                               <a
                                 href={`https://www.google.com/maps/dir/?api=1&origin=${hotelLat},${hotelLng}&destination=${custLat},${custLng}`}
@@ -1151,7 +1151,7 @@ export default function DeliveryDashboard() {
                                 rel="noopener noreferrer"
                                 className="w-full bg-blue-50 border border-blue-300 hover:border-blue-500 text-blue-700 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
                               >
-                                <Compass className="w-4 h-4" /> 🏠 Navigate to Customer (Delivery)
+                                <Compass className="w-4 h-4" /> Navigate to Customer (Delivery)
                               </a>
                             </div>
                           )}

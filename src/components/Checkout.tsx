@@ -244,7 +244,7 @@ export default function Checkout() {
 
   const isTillJuly1st = new Date() < new Date('2026-07-02T00:00:00');
   const isFreeDelivery  = (appliedCouponDetails?.type === 'free_delivery') || isBeforeTwo || isTillJuly1st;
-  const freeDeliveryReason = appliedCouponDetails?.type === 'free_delivery' ? `${appliedCouponDetails.code} Promo` : isTillJuly1st ? 'Free Delivery till July 1st 🎉' : isBeforeTwo ? 'Free Before 2 PM 🎉' : '';
+  const freeDeliveryReason = appliedCouponDetails?.type === 'free_delivery' ? `${appliedCouponDetails.code} Promo` : isTillJuly1st ? 'Free Delivery till July 1st' : isBeforeTwo ? 'Free Before 2 PM' : '';
   const deliveryCharge  = isFreeDelivery ? 0 : baseDeliveryCharge;
   const rainySeasonFee = 5;
 
@@ -525,7 +525,7 @@ export default function Checkout() {
       }
 
       playSound(SOUNDS.ORDER_SUCCESS);
-      toast.success('🎉 Order placed successfully!');
+      toast.success('Order placed successfully!');
       setTimeout(() => navigate('/track/' + orderId), 500);
     };
 
@@ -789,15 +789,15 @@ export default function Checkout() {
             {deliveryLocation ? (
               <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-4">
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <MapPin className="w-5 h-5 text-brand shrink-0 mt-0.5" />
                   <div className="flex flex-col text-left">
                     <span className="font-extrabold text-sm text-gray-900">{deliveryLocation.name}</span>
                     <p className="text-gray-600 font-medium text-xs leading-relaxed mt-0.5">{deliveryLocation.address}</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <div className="px-3 py-1.5 bg-emerald-50 text-emerald-800 rounded-lg text-[10px] font-black uppercase border border-emerald-200">
-                    📍 {distanceKm} KM from BTM Metro Gate B
+                  <div className="px-3 py-1.5 bg-brand/10 text-brand rounded-lg text-[10px] font-black uppercase border border-brand/20 flex items-center gap-1.5">
+                    <MapPin className="w-3 h-3" /> {distanceKm} KM from BTM Metro Gate B
                   </div>
                   <div className="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border bg-orange-500/10 text-orange-500 border-orange-500/20">
                     ₹{deliveryCharge} Delivery
@@ -813,7 +813,7 @@ export default function Checkout() {
 
                 {isNonBTM && (
                   <div className="bg-amber-500/10 border-2 border-amber-500/40 rounded-2xl p-4 sm:p-5 text-center space-y-2 mt-3">
-                    <div className="text-3xl">🚀</div>
+                    <Truck className="w-8 h-8 text-amber-600 mx-auto" />
                     <h3 className="text-sm sm:text-base font-extrabold text-amber-900">Just wait... We are coming to your area soon!</h3>
                     <p className="text-xs text-amber-800 font-medium leading-relaxed max-w-md mx-auto">
                       Mintoo is currently only serving orders in <b>BTM Layout</b> (1st Stage, 2nd Stage, Main Road & Crosses). Please select a BTM Layout address to place your order!
@@ -875,7 +875,7 @@ export default function Checkout() {
                     className={`p-4 border rounded-xl transition-all flex flex-col items-center justify-center gap-2 text-center ${
                       isManualInputOpen 
                         ? 'bg-brand/20 border-brand text-brand font-extrabold'
-                        : 'bg-[#12121f] hover:bg-[#1c1c2e] border-white/10 text-gray-400'
+                        : 'bg-[#14141f] hover:bg-[#1c1c2e] border-white/10 text-gray-400'
                     }`}
                   >
                     <Search className="w-6 h-6" />
@@ -1019,7 +1019,7 @@ export default function Checkout() {
           {/* Free Delivery Before 2 PM Banner */}
           {isTillJuly1st ? (
             <div className="flex items-center gap-3 px-4 py-3 bg-orange-500/10 border border-orange-500/30 rounded-xl">
-              <span className="text-xl">🎉</span>
+              <Truck className="w-5 h-5 text-brand shrink-0" />
               <div>
                 <p className="text-orange-500 font-black text-xs uppercase tracking-widest">Free Delivery Active!</p>
                 <p className="text-orange-300/70 text-[11px] font-medium">Free delivery is on us till July 1st!</p>
@@ -1027,7 +1027,7 @@ export default function Checkout() {
             </div>
           ) : isBeforeTwo ? (
             <div className="flex items-center gap-3 px-4 py-3 bg-orange-500/10 border border-orange-500/30 rounded-xl">
-              <span className="text-xl">🎉</span>
+              <Truck className="w-5 h-5 text-brand shrink-0" />
               <div>
                 <p className="text-orange-500 font-black text-xs uppercase tracking-widest">Free Delivery Active!</p>
                 <p className="text-orange-300/70 text-[11px] font-medium">Orders before 2:00 PM get free delivery today</p>
@@ -1054,7 +1054,7 @@ export default function Checkout() {
               </button>
             </div>
             {isFreeDelivery && (
-              <p className="text-orange-500 text-xs font-bold">✅ Free Delivery — {freeDeliveryReason}</p>
+              <p className="text-orange-500 text-xs font-bold flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Free Delivery — {freeDeliveryReason}</p>
             )}
           </div>
 
@@ -1172,20 +1172,20 @@ export default function Checkout() {
           {payableAmount > 0 ? (
             <div className="glass-card text-white p-5 sm:p-7 rounded-[28px] space-y-6 text-left">
               {/* Subtle Ambient Background Glow */}
-              <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 blur-[90px] rounded-full pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-500/10 blur-[90px] rounded-full pointer-events-none" />
+              <div className="absolute top-0 right-0 w-48 h-48 bg-accent/10 blur-[90px] rounded-full pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-brand/10 blur-[90px] rounded-full pointer-events-none" />
 
               {/* 100% Secure Badge & Header */}
               <div className="flex items-center justify-between border-b border-gray-800/80 pb-4">
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2">
-                    <CreditCard className="w-4.5 h-4.5 text-emerald-400" /> Select Payment Method
+                    <CreditCard className="w-4.5 h-4.5 text-brand" /> Select Payment Method
                   </h3>
                   <p className="text-[10px] text-gray-400 font-bold tracking-wide mt-0.5">
                     Fast & Verified Instant Checkout
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-400 text-[10px] font-black uppercase tracking-widest shrink-0">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-brand/10 border border-brand/30 rounded-full text-brand text-[10px] font-black uppercase tracking-widest shrink-0">
                   <ShieldCheck className="w-3.5 h-3.5" /> 100% Secure
                 </div>
               </div>
@@ -1194,7 +1194,7 @@ export default function Checkout() {
               <div className="bg-gray-900/90 border border-gray-800 p-4 rounded-2xl flex items-center justify-between">
                 <div>
                   <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Payable Amount</p>
-                  <p className="text-2xl sm:text-3xl font-black italic text-emerald-400 tracking-tight mt-0.5">
+                  <p className="text-2xl sm:text-3xl font-black italic text-green-500 tracking-tight mt-0.5">
                     ₹{payableAmount}
                   </p>
                 </div>
@@ -1204,15 +1204,23 @@ export default function Checkout() {
               </div>
 
               {/* Modern Payment Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3.5"
+                initial="hidden"
+                animate="show"
+                variants={{ show: { transition: { staggerChildren: 0.07 } } }}
+              >
                 {razorpayKeyId && (
                 <>
                 {/* 1. Google Pay */}
-                <div
+                <motion.div
+                  variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setPaymentMethod('gpay')}
-                  className={`relative p-4 sm:p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group ${
+                  className={`relative p-4 sm:p-5 rounded-2xl border-2 transition-colors duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group ${
                     paymentMethod === 'gpay'
-                      ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500 scale-[1.01]'
+                      ? 'border-brand bg-brand/10 shadow-[0_0_20px_rgba(139,143,247,0.15)] ring-1 ring-brand'
                       : 'border-gray-800 bg-gray-900/60 hover:border-gray-700 hover:bg-gray-900/90'
                   }`}
                 >
@@ -1227,31 +1235,34 @@ export default function Checkout() {
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-black text-white text-sm tracking-tight">Google Pay</p>
-                          <span className="bg-emerald-500/20 text-emerald-400 text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-emerald-500/40 animate-pulse">
-                            ⚡ FASTEST
+                          <span className="flex items-center gap-1 bg-brand/20 text-brand text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-brand/40">
+                            <Zap className="w-2.5 h-2.5" /> Fastest
                           </span>
                         </div>
                         <p className="text-[11px] text-gray-400 font-semibold mt-0.5">Fast UPI Payment</p>
                       </div>
                     </div>
                     {paymentMethod === 'gpay' ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-brand shrink-0" />
                     ) : (
                       <div className="w-4 h-4 rounded-full border-2 border-gray-600 group-hover:border-gray-500 shrink-0" />
                     )}
                   </div>
                   <div className="flex items-center justify-between text-[9px] font-black uppercase text-gray-400 border-t border-gray-800/80 pt-2.5 mt-1">
                     <span>Direct App Launch</span>
-                    <span className="text-emerald-400 font-extrabold">Instant UPI</span>
+                    <span className="text-brand font-extrabold">Instant UPI</span>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* 2. PhonePe */}
-                <div
+                <motion.div
+                  variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setPaymentMethod('phonepe')}
-                  className={`relative p-4 sm:p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group ${
+                  className={`relative p-4 sm:p-5 rounded-2xl border-2 transition-colors duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group ${
                     paymentMethod === 'phonepe'
-                      ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500 scale-[1.01]'
+                      ? 'border-brand bg-brand/10 shadow-[0_0_20px_rgba(139,143,247,0.15)] ring-1 ring-brand'
                       : 'border-gray-800 bg-gray-900/60 hover:border-gray-700 hover:bg-gray-900/90'
                   }`}
                 >
@@ -1263,15 +1274,15 @@ export default function Checkout() {
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-black text-white text-sm tracking-tight">PhonePe</p>
-                          <span className="bg-purple-500/20 text-purple-300 text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-purple-500/40">
-                            ✨ ZERO FEE
+                          <span className="flex items-center gap-1 bg-purple-500/20 text-purple-300 text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-purple-500/40">
+                            <Sparkles className="w-2.5 h-2.5" /> Zero Fee
                           </span>
                         </div>
                         <p className="text-[11px] text-gray-400 font-semibold mt-0.5">Pay via PhonePe</p>
                       </div>
                     </div>
                     {paymentMethod === 'phonepe' ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-brand shrink-0" />
                     ) : (
                       <div className="w-4 h-4 rounded-full border-2 border-gray-600 group-hover:border-gray-500 shrink-0" />
                     )}
@@ -1280,34 +1291,37 @@ export default function Checkout() {
                     <span>Direct App Launch</span>
                     <span className="text-purple-400 font-extrabold">UPI Intent</span>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* 3. Cards & Other UPI */}
-                <div
+                <motion.div
+                  variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setPaymentMethod('online')}
-                  className={`relative p-4 sm:p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group ${
+                  className={`relative p-4 sm:p-5 rounded-2xl border-2 transition-colors duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group ${
                     paymentMethod === 'online'
-                      ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500 scale-[1.01]'
+                      ? 'border-brand bg-brand/10 shadow-[0_0_20px_rgba(139,143,247,0.15)] ring-1 ring-brand'
                       : 'border-gray-800 bg-gray-900/60 hover:border-gray-700 hover:bg-gray-900/90'
                   }`}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-md flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl gradient-brand text-white shadow-md flex items-center justify-center shrink-0">
                         <CreditCard className="w-5 h-5" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-black text-white text-sm tracking-tight">Cards & Other UPI</p>
                           <span className="bg-blue-500/20 text-blue-300 text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-blue-500/40">
-                            ALL OPTIONS
+                            All Options
                           </span>
                         </div>
                         <p className="text-[11px] text-gray-400 font-semibold mt-0.5">Paytm, BHIM, CRED, Cards & NetBanking</p>
                       </div>
                     </div>
                     {paymentMethod === 'online' ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-brand shrink-0" />
                     ) : (
                       <div className="w-4 h-4 rounded-full border-2 border-gray-600 group-hover:border-gray-500 shrink-0" />
                     )}
@@ -1318,16 +1332,19 @@ export default function Checkout() {
                     <span className="px-2 py-0.5 bg-gray-800 rounded text-gray-300 font-extrabold">Cards</span>
                     <span className="px-2 py-0.5 bg-gray-800 rounded text-gray-300 font-extrabold">NetBank</span>
                   </div>
-                </div>
+                </motion.div>
                 </>
                 )}
 
                 {/* 4. Cash on Delivery */}
-                <div
+                <motion.div
+                  variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setPaymentMethod('cod')}
-                  className={`relative p-4 sm:p-5 rounded-2xl border-2 transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group ${
+                  className={`relative p-4 sm:p-5 rounded-2xl border-2 transition-colors duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group ${
                     paymentMethod === 'cod'
-                      ? 'border-emerald-500 bg-emerald-500/10 shadow-[0_0_20px_rgba(16,185,129,0.15)] ring-1 ring-emerald-500 scale-[1.01]'
+                      ? 'border-brand bg-brand/10 shadow-[0_0_20px_rgba(139,143,247,0.15)] ring-1 ring-brand'
                       : 'border-gray-800 bg-gray-900/60 hover:border-gray-700 hover:bg-gray-900/90'
                   }`}
                 >
@@ -1340,14 +1357,14 @@ export default function Checkout() {
                         <div className="flex items-center gap-2">
                           <p className="font-black text-white text-sm tracking-tight">Cash on Delivery</p>
                           <span className="bg-amber-500/20 text-amber-300 text-[8px] font-black uppercase px-2 py-0.5 rounded-full border border-amber-500/40">
-                            PAY AT DOORSTEP
+                            Pay At Doorstep
                           </span>
                         </div>
                         <p className="text-[11px] text-gray-400 font-semibold mt-0.5">Pay with cash when order arrives</p>
                       </div>
                     </div>
                     {paymentMethod === 'cod' ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="w-5 h-5 text-brand shrink-0" />
                     ) : (
                       <div className="w-4 h-4 rounded-full border-2 border-gray-600 group-hover:border-gray-500 shrink-0" />
                     )}
@@ -1356,32 +1373,33 @@ export default function Checkout() {
                     <span>No Online Payment Needed</span>
                     <span className="text-amber-400 font-extrabold">Cash</span>
                   </div>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             </div>
           ) : (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 p-5 rounded-2xl text-emerald-400 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2">
-              🎉 100% Covered By Wallet cash
+            <div className="bg-brand/10 border border-brand/30 p-5 rounded-2xl text-brand text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2">
+              <Wallet className="w-4 h-4" /> 100% Covered By Wallet Cash
             </div>
           )}
 
           {/* Sticky Bottom Place Order Bar for Mobile & Desktop CTA */}
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#12121f]/95 border-t border-gray-800/80 z-50 shadow-[0_-10px_25px_rgba(0,0,0,0.5)] md:relative md:bg-transparent md:border-none md:p-0 md:shadow-none">
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#14141f]/95 border-t border-gray-800/80 z-50 shadow-[0_-10px_25px_rgba(0,0,0,0.5)] md:relative md:bg-transparent md:border-none md:p-0 md:shadow-none">
             <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
               <div className="md:hidden text-left">
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
                   {paymentMethod === 'gpay' ? 'Google Pay' : paymentMethod === 'phonepe' ? 'PhonePe' : paymentMethod === 'cod' ? 'Cash on Delivery' : 'Razorpay Checkout'}
                 </p>
-                <p className="text-xl font-black italic text-emerald-400">₹{payableAmount}</p>
+                <p className="text-xl font-black italic text-green-500">₹{payableAmount}</p>
               </div>
 
-              <button
+              <motion.button
+                whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={isSubmitting || isOffline || isNonBTM}
-                className={`flex-1 text-white h-14 sm:h-16 rounded-2xl text-xs sm:text-base font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.98] cursor-pointer ${
+                className={`flex-1 text-white h-14 sm:h-16 rounded-2xl text-xs sm:text-base font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-colors cursor-pointer ${
                   isOffline || isNonBTM
                     ? 'bg-gray-800 text-amber-400 border border-amber-500/40 cursor-not-allowed opacity-90 shadow-none'
-                    : 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 shadow-emerald-500/20 disabled:opacity-60 disabled:cursor-not-allowed'
+                    : 'gradient-brand hover:brightness-110 shadow-brand/20 disabled:opacity-60 disabled:cursor-not-allowed'
                 }`}
               >
                 {isOffline ? (
@@ -1413,7 +1431,7 @@ export default function Checkout() {
                     <ChevronRight className="w-5 h-5" />
                   </>
                 )}
-              </button>
+              </motion.button>
             </div>
           </div>
 
@@ -1440,7 +1458,7 @@ export default function Checkout() {
 
               <div className="space-y-3 text-center">
                 <h3 className="text-lg font-black uppercase tracking-wider text-red-400 flex items-center justify-center gap-2">
-                  <span>🚨 Internet Connection Required</span>
+                  <span>Internet Connection Required</span>
                 </h3>
                 <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-white font-black text-sm leading-relaxed shadow-inner">
                   "BOSS No internet connection. Please connect to the internet to place your order."
@@ -1459,7 +1477,7 @@ export default function Checkout() {
                     if (online) {
                       setIsOffline(false);
                       setShowOfflineDialog(false);
-                      toast.success('✅ Internet connection restored! You can now place your order.');
+                      toast.success('Internet connection restored! You can now place your order.');
                     } else {
                       toast.error('BOSS No internet connection. Please connect to the internet to place your order.', { id: 'no-internet-toast' });
                     }

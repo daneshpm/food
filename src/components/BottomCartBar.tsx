@@ -30,7 +30,7 @@ export default function BottomCartBar() {
           {/* Ambient Glow */}
           <div className="absolute inset-0 bg-brand/10 blur-[80px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
 
-          <div className="relative bg-[#12121f]/95 rounded-3xl md:rounded-[40px] p-3 md:p-5 flex items-center justify-between border border-brand/20 shadow-lg overflow-hidden">
+          <div className="relative bg-[#14141f]/95 rounded-3xl md:rounded-[40px] p-3 md:p-5 flex items-center justify-between border border-brand/20 shadow-lg overflow-hidden">
             {/* Shimmer Effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand/10 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
 
@@ -45,7 +45,7 @@ export default function BottomCartBar() {
                     key={itemCount}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="absolute -top-2 -right-2 md:-top-3 md:-right-3 bg-accent text-[#07070d] text-[9px] md:text-[10px] font-black w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full shadow-lg border-2 border-[#12121f]"
+                    className="absolute -top-2 -right-2 md:-top-3 md:-right-3 bg-accent text-[#0a0a12] text-[9px] md:text-[10px] font-black w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full shadow-lg border-2 border-[#14141f]"
                   >
                     {itemCount}
                   </motion.span>

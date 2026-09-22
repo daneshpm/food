@@ -59,7 +59,7 @@ export default function StaffLogin() {
       if (data.token) {
         localStorage.setItem('moms_magic_admin_token', data.token);
       }
-      toast.success(`Welcome back, Admin! Redirecting... 👑`);
+      toast.success(`Welcome back, Admin! Redirecting...`);
       setTimeout(() => navigate('/admin'), 800);
     } catch (err: any) {
       toast.error('An error occurred during login.');

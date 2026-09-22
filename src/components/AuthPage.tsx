@@ -136,10 +136,10 @@ export default function AuthPage() {
     try {
       if (isSignUp) {
         await signUpWithEmail(email.trim(), password.trim(), name.trim());
-        toast.success(`Welcome to Mintoo, ${name.trim()}! 🎁`);
+        toast.success(`Welcome to Mintoo, ${name.trim()}!`);
       } else {
         await loginWithEmail(email.trim(), password.trim());
-        toast.success('Login successful! 🍳');
+        toast.success('Login successful!');
       }
       localStorage.setItem('moms_magic_user_phone', email.trim());
       localStorage.removeItem('moms_magic_guest');
@@ -161,7 +161,7 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       await resetPassword(email.trim());
-      toast.success('Password reset email sent! Please check your Gmail/inbox and Spam folder. ✉️');
+      toast.success('Password reset email sent! Please check your Gmail/inbox and Spam folder.');
       setIsForgotPassword(false);
     } catch (err: any) {
       console.error(err);
@@ -188,7 +188,7 @@ export default function AuthPage() {
         localStorage.setItem('moms_magic_user_phone', 'google_user');
       }
       localStorage.removeItem('moms_magic_guest');
-      toast.success(`Welcome back! 🍽️`);
+      toast.success(`Welcome back!`);
       navigate('/home');
     } catch (error: any) {
       toast.error(error.message || 'Google sign-in failed.');
@@ -221,7 +221,7 @@ export default function AuthPage() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] max-w-[800px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.16),transparent_70%)] pointer-events-none" />
 
       {/* Cinematic vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#07070d_90%)] pointer-events-none z-20" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#0a0a12_90%)] pointer-events-none z-20" />
 
       <AnimatePresence mode="wait">
         {!showLogin ? (
@@ -268,7 +268,7 @@ export default function AuthPage() {
             <div className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
               <form onSubmit={isForgotPassword ? handlePasswordReset : handleEmailAuth} className="space-y-4">
               {!isForgotPassword && (
-                <div className="flex bg-[#07070d] p-1 rounded-xl border border-white/10 mb-4">
+                <div className="flex bg-[#0a0a12] p-1 rounded-xl border border-white/10 mb-4">
                   <button
                     type="button"
                     onClick={() => setIsSignUp(false)}
@@ -297,7 +297,7 @@ export default function AuthPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Full Name"
-                    className="w-full px-5 py-4 bg-[#07070d] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0d0d1a] focus:border-brand transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
+                    className="w-full px-5 py-4 bg-[#0a0a12] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0d0d1a] focus:border-brand transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
                   />
                 </div>
               )}
@@ -308,7 +308,7 @@ export default function AuthPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email Address"
-                  className="w-full px-5 py-4 bg-[#07070d] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0d0d1a] focus:border-brand transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
+                  className="w-full px-5 py-4 bg-[#0a0a12] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0d0d1a] focus:border-brand transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
                   required
                 />
               </div>
@@ -320,7 +320,7 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
-                    className="w-full px-5 py-4 pr-12 bg-[#07070d] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0d0d1a] focus:border-brand transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
+                    className="w-full px-5 py-4 pr-12 bg-[#0a0a12] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0d0d1a] focus:border-brand transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
                     required
                   />
                   <button
@@ -375,7 +375,7 @@ export default function AuthPage() {
                 <>
                   <div className="relative py-4">
                     <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
-                    <div className="relative flex justify-center"><span className="px-4 text-[10px] text-[#A5A5A5] font-bold uppercase tracking-widest bg-[#12121f]">Or Continue With</span></div>
+                    <div className="relative flex justify-center"><span className="px-4 text-[10px] text-[#A5A5A5] font-bold uppercase tracking-widest bg-[#14141f]">Or Continue With</span></div>
                   </div>
                   
                   {/* Google Sign-In Button */}

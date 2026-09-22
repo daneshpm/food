@@ -41,7 +41,7 @@ export default function ProfilePage() {
   const handleAutoDetectProfileAddress = () => {
     if (!navigator.geolocation) {
       setAddressText('16th Main Road, BTM 2nd Stage, BTM Layout, Bengaluru');
-      toast.success('Pre-filled address for BTM Layout 📍');
+      toast.success('Pre-filled address for BTM Layout');
       return;
     }
 
@@ -54,10 +54,10 @@ export default function ProfilePage() {
           setAddressText(fullAddress);
           setAddressLat(latitude.toString());
           setAddressLng(longitude.toString());
-          toast.success('Exact GPS location detected & pre-filled! 📍');
+          toast.success('Exact GPS location detected & pre-filled!');
         } catch (err) {
           setAddressText('16th Main Road, BTM 2nd Stage, BTM Layout, Bengaluru');
-          toast.success('Location set to BTM Layout 📍');
+          toast.success('Location set to BTM Layout');
         } finally {
           setIsDetectingProfileLocation(false);
         }
@@ -66,7 +66,7 @@ export default function ProfilePage() {
         console.warn('Profile geolocation fallback:', err);
         setAddressText('16th Main Road, BTM 2nd Stage, BTM Layout, Bengaluru');
         setIsDetectingProfileLocation(false);
-        toast.success('Location set to BTM Layout 📍');
+        toast.success('Location set to BTM Layout');
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
@@ -136,7 +136,7 @@ export default function ProfilePage() {
 
     try {
       await addAddress(addressLabel.trim(), addressText.trim(), lat, lng);
-      toast.success('Address saved successfully! 📍');
+      toast.success('Address saved successfully!');
       setAddressText('');
       setShowAddressForm(false);
     } catch (err) {
@@ -469,7 +469,7 @@ export default function ProfilePage() {
 
         {/* Footer Brand Info */}
         <div className="text-center pt-4 space-y-1">
-          <p className="text-[10px] text-gray-400 font-medium">Crafted with ❤️ for Foodies</p>
+          <p className="text-[10px] text-gray-400 font-medium">Crafted with for Foodies</p>
         </div>
 
       </div>

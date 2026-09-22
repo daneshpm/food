@@ -62,7 +62,7 @@ export default function CategoryPage() {
   const handleAdd = (item: any) => {
     addItem(item);
     playSound(SOUNDS.ADD_TO_CART);
-    toast.success(`${item.name} added! 🛒`);
+    toast.success(`${item.name} added!`);
   };
 
   const heroImage = useMemo(() => {
@@ -94,7 +94,7 @@ export default function CategoryPage() {
             playSound(SOUNDS.CLICK);
             navigate('/home');
           }}
-          className="absolute top-4 left-4 z-20 w-10 h-10 bg-[#12121f]/80 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+          className="absolute top-4 left-4 z-20 w-10 h-10 bg-[#14141f]/80 backdrop-blur-md border border-white/10 rounded-full flex items-center justify-center active:scale-90 transition-all cursor-pointer"
         >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
@@ -125,7 +125,7 @@ export default function CategoryPage() {
             className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 border transition-all duration-300 cursor-pointer ${
               dietPreference === 'both'
                 ? 'bg-white text-black border-white shadow-[0_4px_15px_rgba(255,255,255,0.15)] scale-[1.02]'
-                : 'bg-[#12121f] text-gray-400 border-white/5 hover:border-white/10'
+                : 'bg-[#14141f] text-gray-400 border-white/5 hover:border-white/10'
             }`}
           >
             <div className="flex gap-0.5">
@@ -144,7 +144,7 @@ export default function CategoryPage() {
             className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 border transition-all duration-300 cursor-pointer ${
               dietPreference === 'veg'
                 ? 'bg-[#39B54A] text-white border-[#39B54A] shadow-[0_4px_15px_rgba(57,181,74,0.3)] scale-[1.02]'
-                : 'bg-[#12121f] text-[#39B54A] border-[#39B54A]/20 hover:bg-[#39B54A]/5'
+                : 'bg-[#14141f] text-[#39B54A] border-[#39B54A]/20 hover:bg-[#39B54A]/5'
             }`}
           >
             <div className="w-3.5 h-3.5 border-2 border-[#39B54A] flex items-center justify-center rounded shrink-0 p-[2px]">
@@ -162,7 +162,7 @@ export default function CategoryPage() {
             className={`flex-1 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 border transition-all duration-300 cursor-pointer ${
               dietPreference === 'non-veg'
                 ? 'bg-[#E53E3E] text-white border-[#E53E3E] shadow-[0_4px_15px_rgba(229,62,62,0.3)] scale-[1.02]'
-                : 'bg-[#12121f] text-[#E53E3E] border-[#E53E3E]/20 hover:bg-[#E53E3E]/5'
+                : 'bg-[#14141f] text-[#E53E3E] border-[#E53E3E]/20 hover:bg-[#E53E3E]/5'
             }`}
           >
             <div className="w-3.5 h-3.5 border-2 border-[#E53E3E] flex items-center justify-center rounded shrink-0 p-[2px]">
@@ -182,7 +182,7 @@ export default function CategoryPage() {
                   playSound(SOUNDS.CLICK);
                   navigate(`/food/${item.id}`);
                 }}
-                className="relative bg-[#12121f] border border-white/5 rounded-[24px] overflow-hidden flex flex-col group transition-all duration-300 hover:border-white/10 cursor-pointer"
+                className="relative bg-[#14141f] border border-white/5 rounded-[24px] overflow-hidden flex flex-col group transition-all duration-300 hover:border-white/10 cursor-pointer"
               >
                 {/* Image Container with Badges */}
                 <div className="w-full aspect-[4/3] relative overflow-hidden bg-neutral-900 shrink-0">
@@ -195,16 +195,16 @@ export default function CategoryPage() {
 
                   {/* Fast Delivery & Fresh & Hot Badges */}
                   <div className="absolute top-2 left-2 flex flex-col gap-1 z-10 pointer-events-none">
-                    <span className="bg-[#12121f]/95 text-accent text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-accent/25">
-                      ⚡ Fast
+                    <span className="bg-[#14141f]/95 text-accent text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-accent/25">
+ Fast
                     </span>
-                    <span className="bg-[#12121f]/95 text-[#E53E3E] text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#E53E3E]/25">
-                      🔥 Hot
+                    <span className="bg-[#14141f]/95 text-[#E53E3E] text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full flex items-center gap-0.5 shadow-md border border-[#E53E3E]/25">
+ Hot
                     </span>
                   </div>
 
                   {/* Veg/Non-Veg Badge */}
-                  <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#12121f]/95 p-1 rounded-md border border-white/10 shadow-md">
+                  <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#14141f]/95 p-1 rounded-md border border-white/10 shadow-md">
                     <div className={`w-2.5 h-2.5 border flex items-center justify-center rounded-[2px] p-[1px] ${
                       item.isVeg ? 'border-[#39B54A]' : 'border-[#E53E3E]'
                     }`}>

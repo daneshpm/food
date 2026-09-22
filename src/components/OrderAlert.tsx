@@ -118,7 +118,7 @@ export default function OrderAlert({ isVisible, orderData, onDismiss, onAccept }
             </motion.div>
             
             <h2 className="text-3xl font-black italic tracking-tight text-gray-900">
-              New Order! 🎉
+              New Order! 
             </h2>
             <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-2">
               Incoming delivery request

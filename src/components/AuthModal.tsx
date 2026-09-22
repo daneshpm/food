@@ -46,10 +46,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       if (isSignUp) {
         await signUpWithEmail(email.trim(), password.trim(), name.trim());
-        toast.success(`Welcome to Mintoo, ${name.trim()}! 🎁`);
+        toast.success(`Welcome to Mintoo, ${name.trim()}!`);
       } else {
         await loginWithEmail(email.trim(), password.trim());
-        toast.success('Welcome back! 🍳');
+        toast.success('Welcome back!');
       }
       onClose();
     } catch (err: any) {
@@ -68,7 +68,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setSubmitLoading(true);
     try {
       await resetPassword(email.trim());
-      toast.success('Password reset email sent! Please check your Gmail/inbox and Spam folder. ✉️');
+      toast.success('Password reset email sent! Please check your Gmail/inbox and Spam folder.');
       setIsForgotPassword(false);
     } catch (err: any) {
       toast.error(err.message || 'Failed to send password reset email.');
@@ -80,7 +80,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const handleGoogleAuth = async () => {
     try {
       await loginWithGoogle();
-      toast.success('Signed in with Google! 🚀');
+      toast.success('Signed in with Google!');
       onClose();
     } catch (err: any) {
       toast.error('Google Sign-In failed.');

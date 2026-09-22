@@ -15,7 +15,7 @@ export default function BottomNav() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-[100] bg-[#07070d] border-t border-white/5 pb-safe md:hidden">
+    <nav className="fixed bottom-0 left-0 w-full z-[100] bg-[#0a0a12] border-t border-white/5 pb-safe md:hidden">
       <div className="flex items-center justify-around py-2.5 px-2">
         {/* Home */}
         <Link 
@@ -55,7 +55,7 @@ export default function BottomNav() {
           <div className="relative">
             <ShoppingCart className={`w-6 h-6 ${isActive('/cart') ? 'fill-brand/10 text-brand' : ''}`} />
             {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-2 gradient-brand text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-[#07070d]">
+              <span className="absolute -top-1.5 -right-2 gradient-brand text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-[#0a0a12]">
                 {cartCount}
               </span>
             )}

@@ -56,7 +56,7 @@ export default function CartPage() {
           onClick={() => navigate('/home')}
           className="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-xl shadow-emerald-500/20 hover:brightness-110 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
         >
-          <span>Explore Yummy Menu 🍕</span>
+          <span>Explore Yummy Menu</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
@@ -205,7 +205,7 @@ export default function CartPage() {
 
               {isNonBTM && (
                 <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-center space-y-1">
-                  <div className="text-lg">🚀</div>
+                  <Truck className="w-5 h-5 text-amber-400 mx-auto" />
                   <h4 className="text-xs font-extrabold text-amber-400">Just wait... We are coming to your area soon!</h4>
                   <p className="text-[10px] text-gray-300 font-medium">Currently, Mintoo is only delivering in <b>BTM Layout</b>.</p>
                 </div>

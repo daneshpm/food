@@ -51,7 +51,7 @@ export default function FoodInfoPage() {
     if (!item) return;
     addItem(item);
     playSound(SOUNDS.ADD_TO_CART);
-    toast.success(`${item.name} added to cart! 🛒`);
+    toast.success(`${item.name} added to cart!`);
   };
 
   const handleIncrement = () => {
@@ -75,7 +75,7 @@ export default function FoodInfoPage() {
     setIsLiked(!isLiked);
     playSound(SOUNDS.CLICK);
     if (!isLiked) {
-      toast.success('Added to your Favourites! ❤️');
+      toast.success('Added to your Favourites!');
     } else {
       toast.error('Removed from Favourites');
     }
@@ -112,13 +112,13 @@ export default function FoodInfoPage() {
   return (
     <div className="min-h-screen bg-mesh pb-28 text-white select-none text-left animate-fadeIn">
       {/* Top Floating Navbar */}
-      <div className="sticky top-0 z-40 bg-[#07070d]/98 border-b border-white/5 px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-40 bg-[#0a0a12]/98 border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => {
             playSound(SOUNDS.CLICK);
             navigate(-1);
           }}
-          className="w-10 h-10 bg-[#12121f] border border-white/5 rounded-full flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+          className="w-10 h-10 bg-[#14141f] border border-white/5 rounded-full flex items-center justify-center active:scale-90 transition-all cursor-pointer"
         >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
@@ -130,7 +130,7 @@ export default function FoodInfoPage() {
 
       <div className="max-w-md mx-auto px-4 pt-4 flex flex-col gap-6">
         {/* Cover Photo Card */}
-        <div className="relative w-full aspect-[4/3] rounded-[28px] overflow-hidden border border-white/5 bg-[#12121f] shadow-xl group">
+        <div className="relative w-full aspect-[4/3] rounded-[28px] overflow-hidden border border-white/5 bg-[#14141f] shadow-xl group">
           <img
             src={item.image}
             alt={item.name}
@@ -139,16 +139,16 @@ export default function FoodInfoPage() {
 
           {/* Quick Badges Overlay */}
           <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10 pointer-events-none">
-            <span className="bg-[#12121f]/85 backdrop-blur-md text-accent text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 shadow-md border border-accent/25">
-              ⚡ Fast Delivery
+            <span className="bg-[#14141f]/85 backdrop-blur-md text-accent text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 shadow-md border border-accent/25">
+ Fast Delivery
             </span>
-            <span className="bg-[#12121f]/85 backdrop-blur-md text-[#E53E3E] text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 shadow-md border border-[#E53E3E]/25">
-              🔥 Hot & Fresh
+            <span className="bg-[#14141f]/85 backdrop-blur-md text-[#E53E3E] text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 shadow-md border border-[#E53E3E]/25">
+ Hot & Fresh
             </span>
           </div>
 
           {/* Diet Preference Circle Badge */}
-          <div className="absolute top-4 right-4 z-10 pointer-events-none bg-[#12121f]/85 backdrop-blur-sm p-1.5 rounded-xl border border-white/10 shadow-md">
+          <div className="absolute top-4 right-4 z-10 pointer-events-none bg-[#14141f]/85 backdrop-blur-sm p-1.5 rounded-xl border border-white/10 shadow-md">
             <div className={`w-3.5 h-3.5 border-2 flex items-center justify-center rounded-[3px] p-[1.5px] ${
               item.isVeg ? 'border-[#39B54A]' : 'border-[#E53E3E]'
             }`}>
@@ -162,7 +162,7 @@ export default function FoodInfoPage() {
         </div>
 
         {/* Product Details Section */}
-        <div className="bg-[#12121f] border border-white/5 rounded-[28px] p-5 shadow-lg flex flex-col gap-4">
+        <div className="bg-[#14141f] border border-white/5 rounded-[28px] p-5 shadow-lg flex flex-col gap-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-1">
               <h1 className="text-xl font-black text-white leading-tight">
@@ -256,7 +256,7 @@ export default function FoodInfoPage() {
                     playSound(SOUNDS.CLICK);
                     navigate(`/food/${recItem.id}`);
                   }}
-                  className="relative w-[140px] bg-[#12121f] border border-white/5 rounded-[24px] overflow-hidden flex flex-col shrink-0 group transition-all duration-300 hover:border-white/10 cursor-pointer"
+                  className="relative w-[140px] bg-[#14141f] border border-white/5 rounded-[24px] overflow-hidden flex flex-col shrink-0 group transition-all duration-300 hover:border-white/10 cursor-pointer"
                 >
                   {/* Image container */}
                   <div className="w-full aspect-square relative overflow-hidden bg-neutral-900 shrink-0">
@@ -267,7 +267,7 @@ export default function FoodInfoPage() {
                     />
 
                     {/* Mini Diet Badge Overlay */}
-                    <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#12121f]/80 p-0.5 rounded border border-white/5">
+                    <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#14141f]/80 p-0.5 rounded border border-white/5">
                       <div className={`w-2 h-2 border flex items-center justify-center rounded-[1.5px] p-[0.5px] ${
                         recItem.isVeg ? 'border-[#39B54A]' : 'border-[#E53E3E]'
                       }`}>
@@ -292,7 +292,7 @@ export default function FoodInfoPage() {
                           e.stopPropagation();
                           addItem(recItem);
                           playSound(SOUNDS.ADD_TO_CART);
-                          toast.success(`${recItem.name} added! 🛒`);
+                          toast.success(`${recItem.name} added!`);
                         }}
                         className="gradient-brand text-white w-6 h-6 rounded-md flex items-center justify-center hover:brightness-110 active:scale-90 transition-all cursor-pointer shadow-md border-none"
                       >
