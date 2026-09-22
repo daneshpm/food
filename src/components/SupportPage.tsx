@@ -31,7 +31,7 @@ export default function SupportPage() {
       <div className="max-w-4xl mx-auto space-y-8">
         <button 
           onClick={() => navigate(-1)} 
-          className="flex items-center gap-2 text-gray-500 hover:text-[#FC8019] transition-colors font-bold uppercase tracking-widest text-xs"
+          className="flex items-center gap-2 text-gray-500 hover:text-brand transition-colors font-bold uppercase tracking-widest text-xs"
         >
           <ChevronLeft className="w-5 h-5" /> Back
         </button>
@@ -48,7 +48,7 @@ export default function SupportPage() {
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-2xl">
-                <Mail className="w-5 h-5 text-[#FC8019]" />
+                <Mail className="w-5 h-5 text-brand" />
                 <div>
                   <h3 className="text-xs font-bold text-gray-400 uppercase">Email Us</h3>
                   <a href="mailto:shalyagaonkar@gmail.com" className="text-sm font-bold text-gray-800 hover:underline">
@@ -58,7 +58,7 @@ export default function SupportPage() {
               </div>
 
               <div className="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-2xl">
-                <Phone className="w-5 h-5 text-[#FC8019]" />
+                <Phone className="w-5 h-5 text-brand" />
                 <div>
                   <h3 className="text-xs font-bold text-gray-400 uppercase">Call Us</h3>
                   <a href="tel:+917483187572" className="text-sm font-bold text-gray-800 hover:underline">
@@ -72,7 +72,7 @@ export default function SupportPage() {
           {/* FAQs */}
           <div className="space-y-4 md:col-span-2">
             <h2 className="text-xl font-black uppercase text-gray-900 flex items-center gap-2">
-              <HelpCircle className="w-5 h-5 text-[#FC8019]" /> Frequently Asked Questions
+              <HelpCircle className="w-5 h-5 text-brand" /> Frequently Asked Questions
             </h2>
 
             <div className="space-y-2">
@@ -89,7 +89,7 @@ export default function SupportPage() {
                     className="w-full px-6 py-4 text-left font-bold text-sm text-gray-800 hover:bg-gray-50 flex justify-between items-center"
                   >
                     {faq.q}
-                    <span className="text-[#FC8019] font-black text-lg">
+                    <span className="text-brand font-black text-lg">
                       {activeFaq === index ? "−" : "+"}
                     </span>
                   </button>

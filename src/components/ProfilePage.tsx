@@ -188,7 +188,7 @@ export default function ProfilePage() {
 
           <div className="flex items-center gap-4 relative z-10">
             {/* Avatar Circle */}
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-400 via-orange-500 to-amber-500 p-0.5 shadow-lg shrink-0 flex items-center justify-center">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-400 via-[#F97316] to-amber-500 p-0.5 shadow-lg shrink-0 flex items-center justify-center">
               <div className="w-full h-full bg-gray-950 rounded-[14px] flex items-center justify-center text-amber-400 font-black text-2xl sm:text-3xl uppercase">
                 {userInitial}
               </div>

@@ -83,15 +83,15 @@ export default function FoodInfoPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center text-white">
-        <span className="w-10 h-10 border-4 border-[#39B54A] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-mesh flex items-center justify-center text-white">
+        <span className="w-10 h-10 border-4 border-brand border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-[#080808] text-white flex flex-col items-center justify-center px-4 text-center">
+      <div className="min-h-screen bg-mesh text-white flex flex-col items-center justify-center px-4 text-center">
         <div className="w-16 h-16 bg-neutral-900 rounded-full flex items-center justify-center mb-4 border border-white/5 shadow-lg">
           <ShieldCheck className="w-6 h-6 text-gray-500" />
         </div>
@@ -101,7 +101,7 @@ export default function FoodInfoPage() {
         </p>
         <button
           onClick={() => navigate('/home')}
-          className="mt-6 bg-[#39B54A] text-white font-black text-xs uppercase tracking-wider px-6 py-3 rounded-full shadow-lg active:scale-95 transition-all cursor-pointer border-none"
+          className="mt-6 gradient-brand text-white font-black text-xs uppercase tracking-wider px-6 py-3 rounded-full shadow-lg active:scale-95 transition-all cursor-pointer border-none"
         >
           Go Back Home
         </button>
@@ -110,15 +110,15 @@ export default function FoodInfoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080808] pb-28 text-white select-none text-left animate-fadeIn">
+    <div className="min-h-screen bg-mesh pb-28 text-white select-none text-left animate-fadeIn">
       {/* Top Floating Navbar */}
-      <div className="sticky top-0 z-40 bg-[#080808]/98 border-b border-white/5 px-4 py-3 flex items-center justify-between">
+      <div className="sticky top-0 z-40 bg-[#07070d]/98 border-b border-white/5 px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => {
             playSound(SOUNDS.CLICK);
             navigate(-1);
           }}
-          className="w-10 h-10 bg-[#121212] border border-white/5 rounded-full flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+          className="w-10 h-10 bg-[#12121f] border border-white/5 rounded-full flex items-center justify-center active:scale-90 transition-all cursor-pointer"
         >
           <ArrowLeft className="w-5 h-5 text-white" />
         </button>
@@ -130,7 +130,7 @@ export default function FoodInfoPage() {
 
       <div className="max-w-md mx-auto px-4 pt-4 flex flex-col gap-6">
         {/* Cover Photo Card */}
-        <div className="relative w-full aspect-[4/3] rounded-[28px] overflow-hidden border border-white/5 bg-[#121212] shadow-xl group">
+        <div className="relative w-full aspect-[4/3] rounded-[28px] overflow-hidden border border-white/5 bg-[#12121f] shadow-xl group">
           <img
             src={item.image}
             alt={item.name}
@@ -139,16 +139,16 @@ export default function FoodInfoPage() {
 
           {/* Quick Badges Overlay */}
           <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10 pointer-events-none">
-            <span className="bg-[#121212]/85 backdrop-blur-md text-[#39B54A] text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 shadow-md border border-[#39B54A]/25">
+            <span className="bg-[#12121f]/85 backdrop-blur-md text-accent text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 shadow-md border border-accent/25">
               ⚡ Fast Delivery
             </span>
-            <span className="bg-[#121212]/85 backdrop-blur-md text-[#E53E3E] text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 shadow-md border border-[#E53E3E]/25">
+            <span className="bg-[#12121f]/85 backdrop-blur-md text-[#E53E3E] text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1 shadow-md border border-[#E53E3E]/25">
               🔥 Hot & Fresh
             </span>
           </div>
 
           {/* Diet Preference Circle Badge */}
-          <div className="absolute top-4 right-4 z-10 pointer-events-none bg-[#121212]/85 backdrop-blur-sm p-1.5 rounded-xl border border-white/10 shadow-md">
+          <div className="absolute top-4 right-4 z-10 pointer-events-none bg-[#12121f]/85 backdrop-blur-sm p-1.5 rounded-xl border border-white/10 shadow-md">
             <div className={`w-3.5 h-3.5 border-2 flex items-center justify-center rounded-[3px] p-[1.5px] ${
               item.isVeg ? 'border-[#39B54A]' : 'border-[#E53E3E]'
             }`}>
@@ -162,7 +162,7 @@ export default function FoodInfoPage() {
         </div>
 
         {/* Product Details Section */}
-        <div className="bg-[#121212] border border-white/5 rounded-[28px] p-5 shadow-lg flex flex-col gap-4">
+        <div className="bg-[#12121f] border border-white/5 rounded-[28px] p-5 shadow-lg flex flex-col gap-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex flex-col gap-1">
               <h1 className="text-xl font-black text-white leading-tight">
@@ -170,13 +170,13 @@ export default function FoodInfoPage() {
               </h1>
               <div className="flex items-center gap-2.5 mt-1 text-[11px] font-semibold text-gray-400">
                 <span className="flex items-center gap-0.5">
-                  <Clock className="w-3.5 h-3.5 text-[#39B54A]" /> 25-30 mins
+                  <Clock className="w-3.5 h-3.5 text-brand" /> 25-30 mins
                 </span>
                 {item.fires && item.fires > 0 ? (
                   <>
                     <span>•</span>
-                    <span className="text-[#39B54A] flex items-center gap-0.5 font-bold">
-                      <Flame className="w-3.5 h-3.5 fill-[#39B54A]/10" /> Bestseller
+                    <span className="text-accent flex items-center gap-0.5 font-bold">
+                      <Flame className="w-3.5 h-3.5 fill-accent/10" /> Bestseller
                     </span>
                   </>
                 ) : null}
@@ -214,12 +214,12 @@ export default function FoodInfoPage() {
             {quantity === 0 ? (
               <button
                 onClick={handleAdd}
-                className="bg-[#39B54A] hover:bg-[#2e9d3d] active:scale-95 text-white font-black text-xs uppercase tracking-wider px-8 py-3.5 rounded-2xl flex items-center gap-2 shadow-lg transition-all cursor-pointer border-none"
+                className="gradient-brand hover:brightness-110 active:scale-95 text-white font-black text-xs uppercase tracking-wider px-8 py-3.5 rounded-2xl flex items-center gap-2 shadow-lg transition-all cursor-pointer border-none"
               >
                 Add To Cart <Plus className="w-4 h-4 stroke-[3]" />
               </button>
             ) : (
-              <div className="flex items-center bg-[#39B54A] text-white rounded-2xl shadow-lg overflow-hidden h-11 border border-[#39B54A]">
+              <div className="flex items-center gradient-brand text-white rounded-2xl shadow-lg overflow-hidden h-11 border border-brand">
                 <button
                   onClick={handleDecrement}
                   className="px-4 h-full hover:bg-white/20 transition-colors flex items-center justify-center cursor-pointer"
@@ -256,7 +256,7 @@ export default function FoodInfoPage() {
                     playSound(SOUNDS.CLICK);
                     navigate(`/food/${recItem.id}`);
                   }}
-                  className="relative w-[140px] bg-[#121212] border border-white/5 rounded-[24px] overflow-hidden flex flex-col shrink-0 group transition-all duration-300 hover:border-white/10 cursor-pointer"
+                  className="relative w-[140px] bg-[#12121f] border border-white/5 rounded-[24px] overflow-hidden flex flex-col shrink-0 group transition-all duration-300 hover:border-white/10 cursor-pointer"
                 >
                   {/* Image container */}
                   <div className="w-full aspect-square relative overflow-hidden bg-neutral-900 shrink-0">
@@ -267,7 +267,7 @@ export default function FoodInfoPage() {
                     />
 
                     {/* Mini Diet Badge Overlay */}
-                    <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#121212]/80 p-0.5 rounded border border-white/5">
+                    <div className="absolute top-2 right-2 z-10 pointer-events-none bg-[#12121f]/80 p-0.5 rounded border border-white/5">
                       <div className={`w-2 h-2 border flex items-center justify-center rounded-[1.5px] p-[0.5px] ${
                         recItem.isVeg ? 'border-[#39B54A]' : 'border-[#E53E3E]'
                       }`}>
@@ -294,7 +294,7 @@ export default function FoodInfoPage() {
                           playSound(SOUNDS.ADD_TO_CART);
                           toast.success(`${recItem.name} added! 🛒`);
                         }}
-                        className="bg-[#39B54A] text-white w-6 h-6 rounded-md flex items-center justify-center hover:bg-[#2e9d3d] active:scale-90 transition-all cursor-pointer shadow-md border-none"
+                        className="gradient-brand text-white w-6 h-6 rounded-md flex items-center justify-center hover:brightness-110 active:scale-90 transition-all cursor-pointer shadow-md border-none"
                       >
                         <Plus className="w-3.5 h-3.5 stroke-[3]" />
                       </button>

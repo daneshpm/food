@@ -27,7 +27,7 @@ export default function OffersPage() {
       newPrice: 220,
       badge: "STEAL DEAL",
       icon: Flame,
-      color: "from-orange-600 to-red-600",
+      color: "from-[#EA580C] to-red-600",
       image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=800&q=80"
     },
     {

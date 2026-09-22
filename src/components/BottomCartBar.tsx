@@ -27,34 +27,34 @@ export default function BottomCartBar() {
         className="fixed bottom-[80px] md:bottom-[80px] left-6 right-6 md:left-1/2 md:-translate-x-1/2 md:max-w-xl z-[90] pointer-events-none"
       >
         <div className="relative group pointer-events-auto">
-          {/* Luxury Ambient Glow */}
-          <div className="absolute inset-0 bg-[#39B54A]/5 blur-[80px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-          
-          <div className="relative bg-[#121212]/95 rounded-3xl md:rounded-[40px] p-3 md:p-5 flex items-center justify-between border border-white/10 shadow-lg overflow-hidden">
+          {/* Ambient Glow */}
+          <div className="absolute inset-0 bg-brand/10 blur-[80px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+
+          <div className="relative bg-[#12121f]/95 rounded-3xl md:rounded-[40px] p-3 md:p-5 flex items-center justify-between border border-brand/20 shadow-lg overflow-hidden">
             {/* Shimmer Effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#39B54A]/5 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
-            
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand/10 to-transparent -translate-x-full animate-[shimmer_4s_infinite]" />
+
             <div className="flex items-center gap-2 md:gap-6 min-w-0 flex-1">
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.05, rotate: -5 }}
-                className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#39B54A] flex items-center justify-center relative shadow-xl shadow-[#39B54A]/10 border border-white/5 shrink-0"
+                className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl gradient-brand flex items-center justify-center relative shadow-xl shadow-brand/20 border border-white/5 shrink-0"
               >
                 <ShoppingBag className="w-5 h-5 md:w-8 md:h-8 text-white" />
                 <AnimatePresence>
-                  <motion.span 
+                  <motion.span
                     key={itemCount}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="absolute -top-2 -right-2 md:-top-3 md:-right-3 bg-[#39B54A] text-white text-[9px] md:text-[10px] font-black w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full shadow-lg border-2 border-[#121212]"
+                    className="absolute -top-2 -right-2 md:-top-3 md:-right-3 bg-accent text-[#07070d] text-[9px] md:text-[10px] font-black w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full shadow-lg border-2 border-[#12121f]"
                   >
                     {itemCount}
                   </motion.span>
                 </AnimatePresence>
               </motion.div>
- 
+
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1 md:gap-2">
-                  <Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5 text-[#39B54A]" />
+                  <Sparkles className="w-3 h-3 md:w-3.5 md:h-3.5 text-accent" />
                   <span className="text-gray-400 text-[8px] md:text-[10px] font-black uppercase tracking-[2px] truncate">{itemCount} Item{itemCount > 1 ? "s" : ""} | Total</span>
                 </div>
                 
@@ -73,12 +73,12 @@ export default function BottomCartBar() {
                 whileHover={{ x: 3 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/cart')}
-                className="h-10 md:h-14 px-3 md:px-6 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black uppercase tracking-[1px] md:tracking-[2px] text-white flex items-center justify-center gap-1 md:gap-2 relative overflow-hidden group/btn shadow-[0_0_15px_rgba(57,181,74,0.3)] shrink-0 whitespace-nowrap cursor-pointer"
+                className="h-10 md:h-14 px-3 md:px-6 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black uppercase tracking-[1px] md:tracking-[2px] text-white flex items-center justify-center gap-1 md:gap-2 relative overflow-hidden group/btn shadow-[0_0_15px_rgba(99,102,241,0.4)] shrink-0 whitespace-nowrap cursor-pointer"
                 style={{
-                  background: 'linear-gradient(135deg, #39B54A, #2e9d3d)'
+                  background: 'var(--gradient-brand)'
                 }}
               >
-                <div className="absolute inset-0 bg-[#248131] -translate-x-full group-hover/btn:translate-x-0 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-[#4338CA] -translate-x-full group-hover/btn:translate-x-0 transition-transform duration-500" />
                 <span className="relative z-10 hidden sm:inline">View Cart</span>
                 <span className="relative z-10 sm:hidden">Cart</span>
                 <ArrowRight className="w-4 h-4 md:w-5 md:h-5 relative z-10 group-hover/btn:translate-x-1 transition-transform" />

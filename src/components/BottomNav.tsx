@@ -15,19 +15,19 @@ export default function BottomNav() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-[100] bg-[#080808] border-t border-white/5 pb-safe md:hidden">
+    <nav className="fixed bottom-0 left-0 w-full z-[100] bg-[#07070d] border-t border-white/5 pb-safe md:hidden">
       <div className="flex items-center justify-around py-2.5 px-2">
         {/* Home */}
         <Link 
           to="/home" 
           className={`flex flex-col items-center gap-1 transition-all relative py-1 px-3 ${
-            isActive('/home') ? 'text-[#39B54A]' : 'text-gray-500 hover:text-white'
+            isActive('/home') ? 'text-brand' : 'text-gray-500 hover:text-white'
           }`}
         >
-          <Home className={`w-6 h-6 ${isActive('/home') ? 'fill-[#39B54A]/10 text-[#39B54A]' : ''}`} />
+          <Home className={`w-6 h-6 ${isActive('/home') ? 'fill-brand/10 text-brand' : ''}`} />
           <span className="text-[10px] font-semibold tracking-wide">Home</span>
           {isActive('/home') && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#39B54A] rounded-full animate-pulse" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] gradient-brand rounded-full animate-pulse" />
           )}
         </Link>
         
@@ -35,13 +35,13 @@ export default function BottomNav() {
         <Link 
           to="/orders" 
           className={`flex flex-col items-center gap-1 transition-all relative py-1 px-3 ${
-            isActive('/orders') ? 'text-[#39B54A]' : 'text-gray-500 hover:text-white'
+            isActive('/orders') ? 'text-brand' : 'text-gray-500 hover:text-white'
           }`}
         >
-          <Clipboard className={`w-6 h-6 ${isActive('/orders') ? 'fill-[#39B54A]/10 text-[#39B54A]' : ''}`} />
+          <Clipboard className={`w-6 h-6 ${isActive('/orders') ? 'fill-brand/10 text-brand' : ''}`} />
           <span className="text-[10px] font-semibold tracking-wide">Orders</span>
           {isActive('/orders') && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#39B54A] rounded-full animate-pulse" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] gradient-brand rounded-full animate-pulse" />
           )}
         </Link>
 
@@ -49,20 +49,20 @@ export default function BottomNav() {
         <Link 
           to="/cart" 
           className={`flex flex-col items-center gap-1 transition-all relative py-1 px-3 ${
-            isActive('/cart') ? 'text-[#39B54A]' : 'text-gray-500 hover:text-white'
+            isActive('/cart') ? 'text-brand' : 'text-gray-500 hover:text-white'
           }`}
         >
           <div className="relative">
-            <ShoppingCart className={`w-6 h-6 ${isActive('/cart') ? 'fill-[#39B54A]/10 text-[#39B54A]' : ''}`} />
+            <ShoppingCart className={`w-6 h-6 ${isActive('/cart') ? 'fill-brand/10 text-brand' : ''}`} />
             {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-2 bg-[#39B54A] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-[#080808]">
+              <span className="absolute -top-1.5 -right-2 gradient-brand text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-[#07070d]">
                 {cartCount}
               </span>
             )}
           </div>
           <span className="text-[10px] font-semibold tracking-wide">Cart</span>
           {isActive('/cart') && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#39B54A] rounded-full animate-pulse" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] gradient-brand rounded-full animate-pulse" />
           )}
         </Link>
 
@@ -70,13 +70,13 @@ export default function BottomNav() {
         <Link 
           to="/track" 
           className={`flex flex-col items-center gap-1 transition-all relative py-1 px-3 ${
-            location.pathname.startsWith('/track') ? 'text-[#39B54A]' : 'text-gray-500 hover:text-white'
+            location.pathname.startsWith('/track') ? 'text-brand' : 'text-gray-500 hover:text-white'
           }`}
         >
-          <MapPin className={`w-6 h-6 ${location.pathname.startsWith('/track') ? 'fill-[#39B54A]/10 text-[#39B54A]' : ''}`} />
+          <MapPin className={`w-6 h-6 ${location.pathname.startsWith('/track') ? 'fill-brand/10 text-brand' : ''}`} />
           <span className="text-[10px] font-semibold tracking-wide">Track</span>
           {location.pathname.startsWith('/track') && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#39B54A] rounded-full animate-pulse" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] gradient-brand rounded-full animate-pulse" />
           )}
         </Link>
 
@@ -84,13 +84,13 @@ export default function BottomNav() {
         <Link 
           to="/profile" 
           className={`flex flex-col items-center gap-1 transition-all relative py-1 px-3 ${
-            isActive('/profile') ? 'text-[#39B54A]' : 'text-gray-500 hover:text-white'
+            isActive('/profile') ? 'text-brand' : 'text-gray-500 hover:text-white'
           }`}
         >
-          <User className={`w-6 h-6 ${isActive('/profile') ? 'fill-[#39B54A]/10 text-[#39B54A]' : ''}`} />
+          <User className={`w-6 h-6 ${isActive('/profile') ? 'fill-brand/10 text-brand' : ''}`} />
           <span className="text-[10px] font-semibold tracking-wide">Profile</span>
           {isActive('/profile') && (
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#39B54A] rounded-full animate-pulse" />
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[3px] gradient-brand rounded-full animate-pulse" />
           )}
         </Link>
       </div>

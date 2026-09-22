@@ -855,7 +855,7 @@ export default function Checkout() {
                         setIsManualInputOpen(true);
                       }
                     }}
-                    className="relative overflow-hidden p-4 bg-[#39B54A] hover:bg-[#2e9d3d] border border-white/5 rounded-xl transition-all flex flex-col items-center justify-center gap-2 group cursor-pointer text-center text-white"
+                    className="relative overflow-hidden p-4 gradient-brand hover:brightness-110 border border-white/5 rounded-xl transition-all flex flex-col items-center justify-center gap-2 group cursor-pointer text-center text-white"
                   >
                     {isLoading ? (
                       <Loader2 className="w-6 h-6 text-white animate-spin" />
@@ -874,8 +874,8 @@ export default function Checkout() {
                     }}
                     className={`p-4 border rounded-xl transition-all flex flex-col items-center justify-center gap-2 text-center ${
                       isManualInputOpen 
-                        ? 'bg-[#39B54A]/20 border-[#39B54A] text-[#39B54A] font-extrabold' 
-                        : 'bg-[#121212] hover:bg-[#1c1c1c] border-white/10 text-gray-400'
+                        ? 'bg-brand/20 border-brand text-brand font-extrabold'
+                        : 'bg-[#12121f] hover:bg-[#1c1c2e] border-white/10 text-gray-400'
                     }`}
                   >
                     <Search className="w-6 h-6" />
@@ -1069,7 +1069,7 @@ export default function Checkout() {
                     id="use-wallet-cb"
                     checked={useWallet}
                     onChange={(e) => handleUseWalletToggle(e.target.checked)}
-                    className="w-4.5 h-4.5 accent-[#FC8019] cursor-pointer"
+                    className="w-4.5 h-4.5 accent-[#6366F1] cursor-pointer"
                   />
                   <label htmlFor="use-wallet-cb" className="text-xs font-black uppercase text-gray-900 select-none cursor-pointer tracking-wider">
                     Use Wallet Cash (Available: <span className="text-orange-500">₹{profile.walletBalance}</span>)
@@ -1170,7 +1170,7 @@ export default function Checkout() {
 
           {/* Swiggy / Zomato Inspired Dark Payment Experience */}
           {payableAmount > 0 ? (
-            <div className="bg-[#121212] text-white p-5 sm:p-7 rounded-[28px] border border-gray-800/80 shadow-2xl space-y-6 text-left relative overflow-hidden">
+            <div className="glass-card text-white p-5 sm:p-7 rounded-[28px] space-y-6 text-left">
               {/* Subtle Ambient Background Glow */}
               <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 blur-[90px] rounded-full pointer-events-none" />
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-orange-500/10 blur-[90px] rounded-full pointer-events-none" />
@@ -1333,7 +1333,7 @@ export default function Checkout() {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white shadow-md flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white shadow-md flex items-center justify-center shrink-0">
                         <Banknote className="w-5 h-5" />
                       </div>
                       <div>
@@ -1366,7 +1366,7 @@ export default function Checkout() {
           )}
 
           {/* Sticky Bottom Place Order Bar for Mobile & Desktop CTA */}
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#121212]/95 border-t border-gray-800/80 z-50 shadow-[0_-10px_25px_rgba(0,0,0,0.5)] md:relative md:bg-transparent md:border-none md:p-0 md:shadow-none">
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#12121f]/95 border-t border-gray-800/80 z-50 shadow-[0_-10px_25px_rgba(0,0,0,0.5)] md:relative md:bg-transparent md:border-none md:p-0 md:shadow-none">
             <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
               <div className="md:hidden text-left">
                 <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">
@@ -1464,7 +1464,7 @@ export default function Checkout() {
                       toast.error('BOSS No internet connection. Please connect to the internet to place your order.', { id: 'no-internet-toast' });
                     }
                   }}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 text-white font-black text-xs uppercase tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-500 via-[#F97316] to-amber-500 text-white font-black text-xs uppercase tracking-wider shadow-lg hover:brightness-110 transition-all cursor-pointer flex items-center justify-center gap-2"
                 >
                   <RefreshCw className="w-4 h-4" />
                   <span>Check Connection & Retry</span>

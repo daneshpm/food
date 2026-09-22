@@ -4,23 +4,31 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-heading: "Outfit", "Inter", sans-serif;
-  
-  /* Overriding Tailwind colors to achieve the premium green-black dark theme feel */
-  --color-orange-50: #0d2312;
-  --color-orange-100: #11331a;
-  --color-orange-200: #164823;
-  --color-orange-300: #1c602c;
-  --color-orange-400: #257c37;
-  --color-orange-500: #39B54A; /* Primary Accent Green */
-  --color-orange-600: #2e9d3d; /* Hover Green */
-  --color-orange-700: #248131;
-  --color-orange-900: #14501e;
-  
-  --color-gray-50: #080808;    /* Pure Black Background */
-  --color-gray-100: #121212;   /* Dark Grey Surface/Card */
-  --color-gray-200: #1a1a1a;   /* Subtle Border/Divider */
-  --color-gray-300: #262626;
-  --color-gray-400: #404040;
+
+  /* Indigo/violet/cyan "SaaS" theme - the primary brand/interactive accent.
+     `green-*` below is deliberately kept as a SEPARATE, real green scale for
+     veg indicators and price/money display - those carry meaning to users
+     (green = vegetarian, green = amount) independent of whatever the brand
+     accent color is, so they must not move when the brand palette does. */
+  --color-orange-50: #0e0e1f;
+  --color-orange-100: #15153a;
+  --color-orange-200: #1e1e57;
+  --color-orange-300: #2c2c86;
+  --color-orange-400: #4547b8;
+  --color-orange-500: #6366F1; /* Primary Accent Indigo */
+  --color-orange-600: #4F46E5; /* Hover Indigo */
+  --color-orange-700: #4338CA;
+  --color-orange-900: #1e1b4b;
+
+  --color-cyan-400: #67E8F9;
+  --color-cyan-500: #22D3EE; /* Secondary accent - gradient partner to indigo */
+  --color-cyan-600: #06B6D4;
+
+  --color-gray-50: #07070d;    /* Near-black background, faint violet tint */
+  --color-gray-100: #12121f;   /* Dark surface/card, faint violet tint */
+  --color-gray-200: #1c1c2e;   /* Subtle border/divider */
+  --color-gray-300: #29293f;
+  --color-gray-400: #46465e;
   --color-gray-500: #9ca3af;   /* Secondary Text */
   --color-gray-600: #a3a3a3;
   --color-gray-700: #d4d4d4;
@@ -29,22 +37,28 @@
 
   --color-slate-900: #ffffff;  /* Dark headers turn white */
 
-  --color-green-500: #39B54A;  /* Success matches our theme green */
+  --color-green-500: #39B54A;  /* Veg / success / money - kept as real green on purpose */
   --color-green-600: #2e9d3d;
 
-  /* Premium Green-Black Theme Palette */
-  --color-brand: #39B54A; 
-  --color-brand-hover: #2e9d3d;
-  --color-brand-glow: rgba(57, 181, 74, 0.1);
-  
-  --color-gold: #39B54A; 
-  --color-gold-soft: #81C784; 
-  
-  --color-matte-black: #080808; 
-  --color-dark-surface: #121212; 
-  
-  --color-text-main: #ffffff; 
-  --color-text-muted: #9ca3af; 
+  /* Brand accent (indigo -> cyan gradient system) */
+  --color-brand: #6366F1;
+  --color-brand-hover: #4F46E5;
+  --color-brand-glow: rgba(99, 102, 241, 0.18);
+  --color-accent: #22D3EE;
+  --color-accent-glow: rgba(34, 211, 238, 0.18);
+
+  --gradient-brand: linear-gradient(135deg, #6366F1 0%, #22D3EE 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(99, 102, 241, 0.16) 0%, rgba(34, 211, 238, 0.12) 100%);
+  --gradient-mesh: radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.22) 0%, transparent 45%), radial-gradient(circle at 85% 20%, rgba(34, 211, 238, 0.14) 0%, transparent 40%), #07070d;
+
+  --color-gold: #6366F1;
+  --color-gold-soft: #A5B4FC;
+
+  --color-matte-black: #07070d;
+  --color-dark-surface: #12121f;
+
+  --color-text-main: #ffffff;
+  --color-text-muted: #9ca3af;
 }
 
 @layer base {
@@ -62,25 +76,74 @@
 
 @layer components {
   .luxury-card {
-    @apply bg-[#121212] border border-white/5 relative overflow-hidden transition-all duration-300 rounded-3xl;
+    @apply bg-[#12121f] border border-white/5 relative overflow-hidden transition-all duration-300 rounded-3xl;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   }
-  
+
   .luxury-card:hover {
     @apply border-white/10 -translate-y-1;
-    box-shadow: 0 8px 30px rgba(57, 181, 74, 0.1);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15);
   }
-  
+
   .btn-luxury-gold {
     @apply font-black uppercase tracking-[2px] px-8 py-4 rounded-xl transition-all duration-300
            shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30
            hover:scale-[1.02] active:scale-95;
-    background: #39B54A;
+    background: var(--gradient-brand);
     color: #FFFFFF;
   }
 
   .glass-nav {
-    @apply bg-[#080808]/90 backdrop-blur-xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.5)];
+    @apply bg-[#07070d]/90 backdrop-blur-xl border-t border-white/5 shadow-[0_-4px_20px_rgba(0,0,0,0.5)];
+  }
+
+  /* Glass morphism surfaces - reserved for single-instance UI (headers, hero
+     banners, modals, dashboard stat cards), never for items inside a
+     repeated/scrolling grid - backdrop-blur on N cards costs N re-composites
+     per scroll frame, which is exactly the jank the 2026-09-22 perf pass
+     removed. See CLAUDE.md's "Scroll performance" section before adding
+     backdrop-blur to anything that renders more than once per page. */
+  .glass-card {
+    @apply relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-card-brand {
+    @apply relative overflow-hidden rounded-3xl border backdrop-blur-xl;
+    background: var(--gradient-brand-soft);
+    border-color: rgba(99, 102, 241, 0.25);
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-panel {
+    @apply bg-white/[0.05] backdrop-blur-xl border border-white/10;
+  }
+
+  .bg-mesh {
+    background: var(--gradient-mesh);
+  }
+
+  .gradient-brand {
+    background: var(--gradient-brand);
+  }
+
+  .text-gradient-brand {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .btn-gradient-brand {
+    @apply font-black uppercase tracking-wider transition-all duration-300 active:scale-95;
+    background: var(--gradient-brand);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+  }
+
+  .btn-gradient-brand:hover {
+    box-shadow: 0 6px 24px rgba(99, 102, 241, 0.5);
+    filter: brightness(1.05);
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -92,13 +155,13 @@
   }
 }
 
-/* Global utility overrides for absolute pixel-perfect green-black compliance and readability */
+/* Global utility overrides for absolute pixel-perfect dark-theme compliance and readability */
 .bg-white {
-  background-color: #121212 !important;
+  background-color: #12121f !important;
 }
 
 .text-luxury-gold {
-  color: #39B54A !important;
+  color: #6366F1 !important;
 }
 
 .border-gray-100, .border-gray-200, .border-gray-300, .border-gray-400, .border {
@@ -115,11 +178,11 @@
 }
 
 .bg-gray-50, .bg-slate-50, .bg-neutral-50 {
-  background-color: #080808 !important;
+  background-color: #07070d !important;
 }
 
 .bg-gray-100, .bg-slate-100, .bg-neutral-100 {
-  background-color: #121212 !important;
+  background-color: #12121f !important;
 }
 
 /* Animations */

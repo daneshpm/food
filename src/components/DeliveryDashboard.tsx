@@ -869,7 +869,7 @@ export default function DeliveryDashboard() {
         <div className="luxury-card rounded-[35px] p-6 sm:p-10 border border-gray-200 bg-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-4 text-left">
             <div className={`w-12 h-12 rounded-full border flex items-center justify-center shadow-lg text-lg font-black shrink-0 ${
-              isOnline ? 'bg-orange-50 border-orange-200 text-orange-500 shadow-[#FC8019]/20' : 'bg-red-500/10 border-red-500/30 text-red-500'
+              isOnline ? 'bg-orange-50 border-orange-200 text-orange-500 shadow-brand/20' : 'bg-red-500/10 border-red-500/30 text-red-500'
             }`}>
               {isOnline ? '🟢' : '🔴'}
             </div>
@@ -901,7 +901,7 @@ export default function DeliveryDashboard() {
               className={`px-6 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all cursor-pointer shadow-md ${
                 isOnline 
                   ? 'bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-gray-900' 
-                  : 'bg-orange-505 bg-orange-500 text-black hover:brightness-105 shadow-[#FC8019]/10'
+                  : 'bg-orange-500 text-black hover:brightness-105 shadow-brand/10'
               }`}
             >
               <Power className="w-4 h-4" />
@@ -1128,9 +1128,9 @@ export default function DeliveryDashboard() {
                           {order.riderStatus === 'delivering' && (
                             <button
                               onClick={() => handleCompleteDelivery(order.id)}
-                              className="flex-1 bg-gradient-to-r from-orange-500 to-[#FC8019] text-black font-black uppercase text-[10px] tracking-widest py-4 rounded-xl hover:brightness-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
+                              className="flex-1 gradient-brand text-white font-black uppercase text-[10px] tracking-widest py-4 rounded-xl hover:brightness-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2"
                             >
-                              <CheckCircle className="w-4 h-4 fill-black stroke-orange-500" /> Complete Delivery
+                              <CheckCircle className="w-4 h-4" /> Complete Delivery
                             </button>
                           )}
 

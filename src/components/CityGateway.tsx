@@ -29,22 +29,22 @@ export default function CityGateway({ children }: { children: React.ReactNode })
 
   if (!selectedCity) {
     return (
-      <div className="fixed inset-0 z-[200] flex flex-col items-center p-6 sm:p-10 min-h-screen bg-[radial-gradient(circle_at_top,#1e1e1e_0%,#000000_100%)] text-gray-900 overflow-y-auto">
+      <div className="fixed inset-0 z-[200] flex flex-col items-center p-6 sm:p-10 min-h-screen bg-mesh text-gray-900 overflow-y-auto">
         <header className="w-full max-w-md text-center mb-10 mt-4">
-          <h1 className="text-5xl font-[900] italic tracking-tighter text-[#39B54A] drop-shadow-[0px_4px_10px_rgba(0,0,0,0.5)] uppercase mb-2 font-sans">
+          <h1 className="text-5xl font-[900] italic tracking-tighter text-gradient-brand drop-shadow-[0px_4px_10px_rgba(0,0,0,0.5)] uppercase mb-2 font-sans">
             SELECTION
           </h1>
           <p className="text-[10px] tracking-[0.3em] font-bold text-gray-400 uppercase">
             Select Your Delivery City
           </p>
         </header>
- 
+
         <main className="w-full max-w-md space-y-4">
-          <button 
+          <button
             onClick={handleAutoDetect}
-            className="w-full flex items-center justify-center gap-4 py-5 px-6 rounded-[40px] border border-[rgba(57,181,74,0.4)] bg-transparent hover:bg-[rgba(57,181,74,0.1)] transition-all duration-300"
+            className="w-full flex items-center justify-center gap-4 py-5 px-6 rounded-[40px] border border-brand/40 bg-transparent hover:bg-brand/10 transition-all duration-300"
           >
-            <svg className="w-6 h-6 text-[#39B54A]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg className="w-6 h-6 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 0V5m0 14v-3m0-11a9 9 0 110 18 9 9 0 010-18z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
               <circle cx="12" cy="12" r="1" fill="currentColor"></circle>
             </svg>
@@ -67,12 +67,12 @@ export default function CityGateway({ children }: { children: React.ReactNode })
               }}
               className={`w-full flex items-center py-6 px-8 rounded-[40px] transition-colors ${
                 city.isActive 
-                  ? 'justify-between border-2 border-[#39B54A] bg-white shadow-sm' 
+                  ? 'justify-between border-2 border-brand bg-white shadow-sm'
                   : 'border border-gray-200 bg-gray-50 hover:bg-gray-100 opacity-40'
               }`}
             >
               <div className="flex items-center gap-5">
-                <svg className={`w-7 h-7 ${city.isActive ? 'text-[#39B54A]' : 'text-gray-900'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className={`w-7 h-7 ${city.isActive ? 'text-brand' : 'text-gray-900'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                   <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                 </svg>
@@ -81,7 +81,7 @@ export default function CityGateway({ children }: { children: React.ReactNode })
                 </span>
               </div>
               {city.isActive && (
-                <svg className="w-6 h-6 text-[#39B54A] opacity-80" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-6 h-6 text-brand opacity-80" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2l1.5 4.5H18l-3.5 3 1.5 5-4-3-4 3 1.5-5-3.5-3h4.5z"></path>
                 </svg>
               )}

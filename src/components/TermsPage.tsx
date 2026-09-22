@@ -11,7 +11,7 @@ export default function TermsPage() {
       <div className="max-w-3xl mx-auto space-y-8">
         <button 
           onClick={() => navigate(-1)} 
-          className="flex items-center gap-2 text-gray-500 hover:text-[#FC8019] transition-colors font-bold uppercase tracking-widest text-xs"
+          className="flex items-center gap-2 text-gray-500 hover:text-brand transition-colors font-bold uppercase tracking-widest text-xs"
         >
           <ChevronLeft className="w-5 h-5" /> Back
         </button>

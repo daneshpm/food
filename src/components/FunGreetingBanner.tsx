@@ -258,14 +258,14 @@ export default function FunGreetingBanner() {
               initial={{ x: 0, y: 0, scale: 0.5, opacity: 1, rotate: 0 }}
               animate={{ x: (Math.random()-0.5)*400, y: (Math.random()-0.5)*400-100, scale: Math.random()*1.5+0.5, opacity: 0, rotate: Math.random()*720 }}
               transition={{ duration: 1.8, ease: 'easeOut' }}
-              className={`absolute w-3 h-3 rounded-full ${['bg-amber-400','bg-orange-500','bg-pink-500','bg-yellow-300'][i%4]}`}
+              className={`absolute w-3 h-3 rounded-full ${['bg-amber-400','bg-[#F97316]','bg-pink-500','bg-yellow-300'][i%4]}`}
             />
           ))}
         </div>
       )}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-        className="relative overflow-hidden rounded-[24px] p-4 sm:p-5 border border-amber-500/30 bg-gradient-to-r from-amber-500/20 via-orange-500/15 to-[#121212]/90 backdrop-blur-xl shadow-xl text-left"
+        className="relative overflow-hidden rounded-[24px] p-4 sm:p-5 border border-amber-500/30 bg-gradient-to-r from-amber-500/20 via-[#F97316]/15 to-[#12121f]/90 backdrop-blur-xl shadow-xl text-left"
       >
         <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/20 rounded-full blur-2xl pointer-events-none" />
         <div className="relative z-10 space-y-3">
@@ -319,7 +319,7 @@ export default function FunGreetingBanner() {
                   <div className="grid grid-cols-2 gap-2.5">
                     {(['King', 'Queen'] as const).map(t => (
                       <button key={t} type="button" onClick={() => { setSelectedTitle(t); playSound(SOUNDS.CLICK); }}
-                        className={`p-3 rounded-xl border flex flex-col items-center gap-1 transition-all cursor-pointer ${selectedTitle === t ? (t === 'King' ? 'bg-gradient-to-b from-amber-500/25 to-orange-500/20 border-amber-400 text-white shadow-lg scale-[1.02]' : 'bg-gradient-to-b from-pink-500/25 to-purple-500/20 border-pink-400 text-white shadow-lg scale-[1.02]') : 'bg-[#222222] border-white/10 text-gray-400 hover:border-white/20'}`}>
+                        className={`p-3 rounded-xl border flex flex-col items-center gap-1 transition-all cursor-pointer ${selectedTitle === t ? (t === 'King' ? 'bg-gradient-to-b from-amber-500/25 to-[#F97316]/20 border-amber-400 text-white shadow-lg scale-[1.02]' : 'bg-gradient-to-b from-pink-500/25 to-purple-500/20 border-pink-400 text-white shadow-lg scale-[1.02]') : 'bg-[#222222] border-white/10 text-gray-400 hover:border-white/20'}`}>
                         <span className="text-xl">👑</span>
                         <span className="font-black text-xs uppercase tracking-wider">{t}</span>
                         {selectedTitle === t && <span className={`text-[8px] font-bold flex items-center gap-0.5 ${t === 'King' ? 'text-amber-400' : 'text-pink-400'}`}><Check className="w-2.5 h-2.5" /> Selected</span>}
@@ -328,7 +328,7 @@ export default function FunGreetingBanner() {
                   </div>
                 </div>
                 <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit"
-                  className="w-full h-11 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-black font-black text-xs uppercase tracking-widest rounded-xl shadow-xl flex items-center justify-center gap-2 hover:brightness-110 transition-all cursor-pointer mt-1">
+                  className="w-full h-11 bg-gradient-to-r from-amber-400 via-[#F97316] to-amber-500 text-black font-black text-xs uppercase tracking-widest rounded-xl shadow-xl flex items-center justify-center gap-2 hover:brightness-110 transition-all cursor-pointer mt-1">
                   <PartyPopper className="w-4 h-4 fill-black" />
                   <span>Save & Start Experience</span>
                 </motion.button>

@@ -207,7 +207,7 @@ export default function AuthPage() {
   }, [showLogin]);
 
   return (
-    <div className="min-h-screen bg-[#080808] flex flex-col items-center justify-center relative overflow-hidden px-6">
+    <div className="min-h-screen bg-mesh flex flex-col items-center justify-center relative overflow-hidden px-6">
       <style dangerouslySetInnerHTML={{__html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Poppins:wght@600&family=Pinyon+Script&display=swap');
         @import url('https://api.fontshare.com/v2/css?f[]=clash-display@700&display=swap');
@@ -218,10 +218,10 @@ export default function AuthPage() {
       `}} />
 
       {/* Spotlight */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] max-w-[800px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.12),transparent_70%)] pointer-events-none" />
-      
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] max-w-[800px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.16),transparent_70%)] pointer-events-none" />
+
       {/* Cinematic vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#080808_90%)] pointer-events-none z-20" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_20%,#07070d_90%)] pointer-events-none z-20" />
 
       <AnimatePresence mode="wait">
         {!showLogin ? (
@@ -240,23 +240,23 @@ export default function AuthPage() {
               className="text-white text-6xl md:text-8xl text-center select-none"
               style={{ fontFamily: "'Pinyon Script', cursive" }}
             >
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#FFD86B] to-[#D4AF37] drop-shadow-[0_0_20px_rgba(212,175,55,0.45)]">
+              <span className="text-gradient-brand drop-shadow-[0_0_20px_rgba(99,102,241,0.5)]">
                 Mintoo
               </span>
             </motion.h1>
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             key="login"
             initial={{ y: 50, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-md bg-[#141414] border border-white/10 rounded-[40px] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.5)] relative z-10"
+            className="w-full max-w-md glass-card rounded-[40px] p-8 relative z-10"
           >
-            <div className="w-16 h-16 rounded-3xl mx-auto flex items-center justify-center shadow-[0_10px_30px_rgba(212,175,55,0.2)] border border-[#D4AF37]/30 bg-gradient-to-br from-[#D4AF37]/20 to-transparent mb-8">
-              <span className="text-[#FFD86B] text-3xl font-black italic" style={{ fontFamily: "'Clash Display', sans-serif" }}>M</span>
+            <div className="w-16 h-16 rounded-3xl mx-auto flex items-center justify-center shadow-[0_10px_30px_rgba(99,102,241,0.25)] border border-brand/30 bg-gradient-to-br from-brand/20 to-transparent mb-8">
+              <span className="text-accent text-3xl font-black italic" style={{ fontFamily: "'Clash Display', sans-serif" }}>M</span>
             </div>
-            
+
             <h1 className="text-3xl font-bold text-white text-center mb-2 tracking-wide" style={{ fontFamily: "'Clash Display', sans-serif" }}>
               {isForgotPassword ? 'Reset Password' : 'Mintoo'}
             </h1>
@@ -268,12 +268,12 @@ export default function AuthPage() {
             <div className="space-y-4" style={{ fontFamily: "'Inter', sans-serif" }}>
               <form onSubmit={isForgotPassword ? handlePasswordReset : handleEmailAuth} className="space-y-4">
               {!isForgotPassword && (
-                <div className="flex bg-[#080808] p-1 rounded-xl border border-white/10 mb-4">
+                <div className="flex bg-[#07070d] p-1 rounded-xl border border-white/10 mb-4">
                   <button
                     type="button"
                     onClick={() => setIsSignUp(false)}
                     className={`flex-1 py-2 text-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
-                      !isSignUp ? 'bg-[#D4AF37] text-black' : 'text-gray-500 hover:text-white'
+                      !isSignUp ? 'gradient-brand text-white' : 'text-gray-500 hover:text-white'
                     }`}
                   >
                     Login
@@ -282,7 +282,7 @@ export default function AuthPage() {
                     type="button"
                     onClick={() => setIsSignUp(true)}
                     className={`flex-1 py-2 text-center text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${
-                      isSignUp ? 'bg-[#D4AF37] text-black' : 'text-gray-500 hover:text-white'
+                      isSignUp ? 'gradient-brand text-white' : 'text-gray-500 hover:text-white'
                     }`}
                   >
                     Sign Up
@@ -297,7 +297,7 @@ export default function AuthPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Full Name"
-                    className="w-full px-5 py-4 bg-[#080808] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0A0A0A] focus:border-[#D4AF37] transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
+                    className="w-full px-5 py-4 bg-[#07070d] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0d0d1a] focus:border-brand transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
                   />
                 </div>
               )}
@@ -308,7 +308,7 @@ export default function AuthPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email Address"
-                  className="w-full px-5 py-4 bg-[#080808] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0A0A0A] focus:border-[#D4AF37] transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
+                  className="w-full px-5 py-4 bg-[#07070d] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0d0d1a] focus:border-brand transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
                   required
                 />
               </div>
@@ -320,7 +320,7 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
-                    className="w-full px-5 py-4 pr-12 bg-[#080808] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0A0A0A] focus:border-[#D4AF37] transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
+                    className="w-full px-5 py-4 pr-12 bg-[#07070d] border border-white/10 rounded-2xl focus:outline-none focus:bg-[#0d0d1a] focus:border-brand transition-all font-bold text-white placeholder:text-gray-600 text-sm shadow-inner"
                     required
                   />
                   <button
@@ -339,7 +339,7 @@ export default function AuthPage() {
                   <button
                     type="button"
                     onClick={() => setIsForgotPassword(true)}
-                    className="text-xs text-[#FFD86B] hover:underline font-medium focus:outline-none transition-all cursor-pointer"
+                    className="text-xs text-accent hover:underline font-medium focus:outline-none transition-all cursor-pointer"
                   >
                     Forgot Password?
                   </button>
@@ -349,11 +349,11 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={isLoading || !email.trim() || (!isForgotPassword && !password.trim())}
-                className="w-full h-14 bg-gradient-to-r from-[#D4AF37] to-[#FFD86B] text-[#080808] rounded-2xl font-bold text-[13px] uppercase tracking-[2px] hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center cursor-pointer"
+                className="w-full h-14 gradient-brand text-white rounded-2xl font-bold text-[13px] uppercase tracking-[2px] hover:shadow-[0_10px_30px_rgba(99,102,241,0.4)] disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center cursor-pointer"
                 style={{ fontFamily: "'Poppins', sans-serif" }}
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-[#080808]/30 border-t-[#080808] rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   isForgotPassword ? 'Send Reset Link' : (isSignUp ? 'Create Account' : 'Login')
                 )}
@@ -363,7 +363,7 @@ export default function AuthPage() {
                 <button
                   type="button"
                   onClick={() => setIsForgotPassword(false)}
-                  className="w-full h-14 bg-transparent border border-white/10 text-white rounded-2xl font-bold text-[12px] uppercase tracking-[2px] hover:border-[#D4AF37]/50 hover:bg-[#1A1A1A] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                  className="w-full h-14 bg-transparent border border-white/10 text-white rounded-2xl font-bold text-[12px] uppercase tracking-[2px] hover:border-brand/50 hover:bg-white/5 transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                   style={{ fontFamily: "'Poppins', sans-serif" }}
                 >
                   Back to Login
@@ -375,7 +375,7 @@ export default function AuthPage() {
                 <>
                   <div className="relative py-4">
                     <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
-                    <div className="relative flex justify-center"><span className="px-4 text-[10px] text-[#A5A5A5] font-bold uppercase tracking-widest bg-[#141414]">Or Continue With</span></div>
+                    <div className="relative flex justify-center"><span className="px-4 text-[10px] text-[#A5A5A5] font-bold uppercase tracking-widest bg-[#12121f]">Or Continue With</span></div>
                   </div>
                   
                   {/* Google Sign-In Button */}
@@ -396,10 +396,10 @@ export default function AuthPage() {
 
                   <button
                     onClick={handleGuest}
-                    className="w-full h-14 bg-[#080808] border border-white/10 text-white rounded-2xl font-bold text-[12px] uppercase tracking-[2px] hover:border-[#D4AF37]/50 hover:bg-[#1A1A1A] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                    className="w-full h-14 bg-white/5 border border-white/10 text-white rounded-2xl font-bold text-[12px] uppercase tracking-[2px] hover:border-brand/50 hover:bg-white/10 transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                     style={{ fontFamily: "'Poppins', sans-serif" }}
                   >
-                    <User className="w-4 h-4 text-[#D4AF37]" /> Guest
+                    <User className="w-4 h-4 text-accent" /> Guest
                   </button>
                 </>
               )}

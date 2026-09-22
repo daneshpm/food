@@ -74,7 +74,7 @@ export default function IncomingOrderPopup({
         className="bg-white/95 backdrop-blur-xl border border-white/20 w-full max-w-md rounded-[24px] shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Header Glow */}
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 p-6 text-white text-center relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#F97316] to-red-500 p-6 text-white text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-white/20 animate-pulse" />
           <h2 className="text-2xl font-black uppercase tracking-widest relative z-10 flex items-center justify-center gap-2">
             🔥 {mode === 'hotel' ? 'New Order' : 'Delivery Request'}

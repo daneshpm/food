@@ -144,7 +144,7 @@ const TrackMap: React.FC<TrackMapProps> = ({ order, rider, mapError }) => {
       const riderIcon = L.divIcon({
         html: `
           <div class="relative flex items-center justify-center">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-amber-400 border-3 border-white shadow-2xl flex items-center justify-center text-white text-xl animate-pulse">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 via-[#F97316] to-amber-400 border-3 border-white shadow-2xl flex items-center justify-center text-white text-xl animate-pulse">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-40"></span>
               🛵
             </div>
@@ -352,7 +352,7 @@ const OrderStatusCard: React.FC<OrderStatusCardProps> = ({ order, rider, remaini
         {rider ? (
           <div className="flex items-center justify-between w-full gap-2">
             <div className="flex items-center gap-3 text-left min-w-0 flex-1">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-white flex items-center justify-center text-lg font-extrabold shadow-md shrink-0">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center text-lg font-extrabold shadow-md shrink-0">
                 {rider.name ? rider.name.charAt(0).toUpperCase() : '🛵'}
               </div>
               <div className="min-w-0 flex-1">

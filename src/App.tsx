@@ -55,7 +55,7 @@ function GoldenParticles() {
         {[...Array(5)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1.5 h-1.5 bg-green-500/20 rounded-full blur-[0.5px]"
+            className="absolute w-1.5 h-1.5 bg-brand/20 rounded-full blur-[0.5px]"
             initial={{ 
               x: Math.random() * 100 + "%", 
               y: Math.random() * 100 + "%",
@@ -83,8 +83,8 @@ function GoldenParticles() {
       </div>
 
       {/* Ambient Brand Glow */}
-      <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-green-500/5 blur-[80px] md:blur-[150px] rounded-full" />
-      <div className="absolute bottom-0 left-0 w-[40%] h-[40%] bg-green-500/5 blur-[80px] md:blur-[150px] rounded-full" />
+      <div className="absolute top-0 right-0 w-[50%] h-[50%] bg-brand/5 blur-[80px] md:blur-[150px] rounded-full" />
+      <div className="absolute bottom-0 left-0 w-[40%] h-[40%] bg-accent/5 blur-[80px] md:blur-[150px] rounded-full" />
     </div>
   );
 }
@@ -187,9 +187,9 @@ export default function App() {
         position="top-center"
         toastOptions={{
           style: {
-            background: '#121212',
+            background: '#12121f',
             color: '#FFFFFF',
-            border: '1px solid rgba(57, 181, 74, 0.2)',
+            border: '1px solid rgba(99, 102, 241, 0.25)',
             borderRadius: '20px',
             padding: '16px 24px',
             fontWeight: '600',
@@ -203,30 +203,29 @@ export default function App() {
         <CapacitorBackButtonHandler />
 
         <MaintenanceGate>
-            <div className="min-h-screen bg-gradient-to-b from-white to-[#d1f2e5] text-gray-900 font-sans relative flex flex-col selection:bg-green-500/30">
+            <div className="min-h-screen bg-mesh text-gray-900 font-sans relative flex flex-col selection:bg-brand/30">
               <GoldenParticles />
 
               <main className="flex-1 relative z-10">
                 <PageTransition>
                   <Suspense fallback={
-                    <div className="min-h-screen bg-[#080808] text-white flex flex-col items-center justify-center relative overflow-hidden">
+                    <div className="min-h-screen bg-mesh text-white flex flex-col items-center justify-center relative overflow-hidden">
                       <style dangerouslySetInnerHTML={{__html: `
                         @import url('https://api.fontshare.com/v2/css?f[]=clash-display@700&display=swap');
                       `}} />
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] max-w-[800px] h-[600px] bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.18),transparent_60%)] pointer-events-none" />
-                      <div className="w-auto px-6 h-16 rounded-3xl mx-auto flex items-center justify-center shadow-[0_10px_30px_rgba(16,185,129,0.2)] border border-emerald-500/30 bg-gradient-to-br from-emerald-500/20 to-transparent mb-6 relative z-10">
-                        <span className="text-emerald-400 text-3xl font-black italic" style={{ fontFamily: "'Clash Display', sans-serif" }}>Mintoo</span>
+                      <div className="w-auto px-6 h-16 rounded-3xl mx-auto flex items-center justify-center shadow-[0_10px_30px_rgba(99,102,241,0.25)] border border-brand/30 bg-gradient-to-br from-brand/20 to-transparent mb-6 relative z-10">
+                        <span className="text-gradient-brand text-3xl font-black italic" style={{ fontFamily: "'Clash Display', sans-serif" }}>Mintoo</span>
                       </div>
-                      
+
                       <div className="text-center space-y-2 mb-6 relative z-10">
-                        <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest animate-pulse">Mintoo Delivery Engine</p>
+                        <p className="text-xs font-bold text-brand uppercase tracking-widest animate-pulse">Mintoo Delivery Engine</p>
                         <p className="text-gray-400 text-xs font-medium">Fetching fresh recipes & nearby kitchens...</p>
                       </div>
 
                       <div className="flex gap-2 relative z-10">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-[bounce_1s_infinite_0ms]" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-[bounce_1s_infinite_150ms]" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-[bounce_1s_infinite_300ms]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-accent animate-[bounce_1s_infinite_0ms]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-brand animate-[bounce_1s_infinite_150ms]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-accent animate-[bounce_1s_infinite_300ms]" />
                       </div>
                     </div>
                   }>

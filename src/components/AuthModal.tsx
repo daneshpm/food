@@ -100,7 +100,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           className="bg-gray-50 border border-gray-200 rounded-[35px] w-full max-w-md shadow-sm relative overflow-hidden"
         >
           {/* Subtle Accent Glow */}
-          <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#FC8019] to-[#E06C00]" />
+          <div className="absolute top-0 left-0 right-0 h-[3px] gradient-brand" />
           <div className="absolute -top-24 -left-24 w-48 h-48 bg-orange-50 blur-[80px] rounded-full pointer-events-none" />
 
           {/* Close button */}
@@ -204,7 +204,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   <button
                     type="button"
                     onClick={() => setIsForgotPassword(true)}
-                    className="text-xs text-[#FC8019] hover:underline font-bold focus:outline-none transition-all cursor-pointer"
+                    className="text-xs text-brand hover:underline font-bold focus:outline-none transition-all cursor-pointer"
                   >
                     Forgot Password?
                   </button>
@@ -214,7 +214,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <button
                 type="submit"
                 disabled={submitLoading}
-                className="w-full bg-gradient-to-r from-[#FC8019] to-[#E06C00] hover:brightness-105 active:scale-95 text-white font-black text-xs uppercase tracking-[2px] py-4 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:scale-100"
+                className="w-full gradient-brand hover:brightness-110 active:scale-95 text-white font-black text-xs uppercase tracking-[2px] py-4 rounded-2xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:scale-100"
               >
                 {submitLoading ? (
                   <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
