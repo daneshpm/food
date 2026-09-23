@@ -16,7 +16,7 @@ export default function BottomCartBar() {
   const distanceKm = deliveryLocation?.distance ?? 999;
   const isOrderingPaused = settings.websiteStatus === 'OFF' || settings.emergencyStop;
 
-  if (itemCount === 0 || location.pathname === '/' || location.pathname === '/checkout' || isOrderingPaused) return null;
+  if (itemCount === 0 || location.pathname === '/' || location.pathname === '/checkout' || location.pathname === '/cart' || isOrderingPaused) return null;
 
   return (
     <AnimatePresence>

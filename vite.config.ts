@@ -6,6 +6,50 @@ import fs from 'fs';
 import crypto from 'crypto';
 import {defineConfig, loadEnv} from 'vite';
 
+// Mints real Firebase custom tokens for the local dev mock, mirroring
+// api/_firebaseAdmin.cjs - unlike that file, this one can stay a plain ESM
+// import: the documented ESM-crashes-on-Vercel issue is specific to
+// Vercel's serverless function bundler, not to Node running vite.config.ts
+// directly, so there's no need for the .cjs/require() workaround here.
+// Needs FIREBASE_SERVICE_ACCOUNT (or FIREBASE_CLIENT_EMAIL + FIREBASE_PRIVATE_KEY)
+// in .env.local - without it, admin/hotel login mocks fall back to the old
+// behavior (no customToken, matching production's own graceful-degradation
+// when Firebase Admin isn't configured).
+let firebaseAdminApp: { db: any; auth: any } | null = null;
+async function getDevFirebaseAdmin(env: Record<string, string>) {
+  if (firebaseAdminApp) return firebaseAdminApp;
+  try {
+    const { initializeApp, getApps, cert } = await import('firebase-admin/app');
+    const { getAuth } = await import('firebase-admin/auth');
+    const { getFirestore } = await import('firebase-admin/firestore');
+
+    if (getApps().length === 0) {
+      const serviceAccountBase64 = env.FIREBASE_SERVICE_ACCOUNT;
+      let credential;
+      if (serviceAccountBase64) {
+        const serviceAccount = JSON.parse(Buffer.from(serviceAccountBase64, 'base64').toString('utf8'));
+        credential = cert(serviceAccount);
+      } else if (env.FIREBASE_CLIENT_EMAIL && env.FIREBASE_PRIVATE_KEY) {
+        credential = cert({
+          projectId: env.FIREBASE_PROJECT_ID || env.VITE_FIREBASE_PROJECT_ID,
+          clientEmail: env.FIREBASE_CLIENT_EMAIL,
+          privateKey: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        });
+      }
+      if (!credential) {
+        firebaseAdminApp = { db: null, auth: null };
+        return firebaseAdminApp;
+      }
+      initializeApp({ credential });
+    }
+    firebaseAdminApp = { db: getFirestore(), auth: getAuth() };
+  } catch (err) {
+    console.error('Local dev: Firebase Admin init failed:', err);
+    firebaseAdminApp = { db: null, auth: null };
+  }
+  return firebaseAdminApp;
+}
+
 export default defineConfig(({mode}) => {
   const env = loadEnv(mode, '.', '');
   return {
@@ -65,37 +109,144 @@ export default defineConfig(({mode}) => {
           server.middlewares.use((req, res, next) => {
             const settingsPath = path.resolve(__dirname, 'src/data/adminSettings.json');
 
-            // Handle Admin Login
+            // Handle Admin Login (mirrors api/login.cjs, including minting a
+            // real Firebase custom token when Firebase Admin is configured)
             if (req.url && req.url.includes('/api/login') && req.method === 'POST') {
               let body = '';
               req.on('data', chunk => { body += chunk.toString(); });
-              req.on('end', () => {
+              req.on('end', async () => {
                 try {
                   const data = JSON.parse(body);
                   const { email = '', password = '' } = data;
-                  const adminEmail = process.env.ADMIN_EMAIL || '';
-                  const adminPassword = process.env.ADMIN_PASSWORD || '';
-                  const adminToken = process.env.ADMIN_AUTH_TOKEN || 'admin-authenticated-token';
+                  const adminEmail = env.ADMIN_EMAIL || '';
+                  const adminPassword = env.ADMIN_PASSWORD || '';
+                  const adminToken = env.ADMIN_AUTH_TOKEN || 'admin-authenticated-token';
 
-                  if (adminEmail && adminPassword && email.trim().toLowerCase() === adminEmail.trim().toLowerCase() && password.trim() === adminPassword.trim()) {
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify({
-                      success: true,
-                      token: adminToken,
-                      user: {
-                        id: 'admin-1',
-                        name: 'Admin',
-                        email: adminEmail,
-                        role: 'super_admin'
-                      }
-                    }));
-                  } else {
+                  if (!(adminEmail && adminPassword && email.trim().toLowerCase() === adminEmail.trim().toLowerCase() && password.trim() === adminPassword.trim())) {
                     res.writeHead(401, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ success: false, message: 'Invalid email or password' }));
+                    return;
                   }
+
+                  const uid = 'admin-' + crypto.createHash('sha256').update(adminEmail.trim().toLowerCase()).digest('hex').slice(0, 24);
+                  let customToken = null;
+
+                  const { db, auth } = await getDevFirebaseAdmin(env);
+                  if (db && auth) {
+                    try {
+                      await auth.getUser(uid).catch(async () => {
+                        await auth.createUser({ uid, email: adminEmail, emailVerified: true });
+                      });
+                      await db.collection('staff').doc(uid).set(
+                        { email: adminEmail, name: 'Super Admin', role: 'admin', updatedAt: new Date().toISOString() },
+                        { merge: true }
+                      );
+                      customToken = await auth.createCustomToken(uid);
+                    } catch (err) {
+                      console.error('Local dev: failed to provision admin Firebase session:', err);
+                    }
+                  } else {
+                    console.warn('Local dev: FIREBASE_SERVICE_ACCOUNT not set in .env.local - admin login will succeed but without a real Firebase Auth session, so Firestore-rule-gated data will be inaccessible.');
+                  }
+
+                  res.writeHead(200, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({
+                    success: true,
+                    token: adminToken,
+                    customToken,
+                    user: {
+                      id: uid,
+                      name: 'Super Admin',
+                      email: adminEmail,
+                      role: 'super_admin'
+                    }
+                  }));
                 } catch (e) {
                   res.writeHead(400, { 'Content-Type': 'application/json' });
                   res.end(JSON.stringify({ success: false, message: 'Invalid request body' }));
+                }
+              });
+              return;
+            }
+
+            // Handle Hotel/Kitchen Login (mirrors api/hotel-auth.cjs's
+            // `mode: 'login'` path - there was previously no local mock for
+            // this endpoint at all, so HotelLogin.tsx could never succeed
+            // locally regardless of credentials)
+            if (req.url && req.url.includes('/api/hotel-auth') && req.method === 'POST') {
+              let body = '';
+              req.on('data', chunk => { body += chunk.toString(); });
+              req.on('end', async () => {
+                try {
+                  const data = JSON.parse(body);
+                  const { db, auth } = await getDevFirebaseAdmin(env);
+                  if (!db || !auth) {
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, message: 'Firebase Admin credentials are not configured (set FIREBASE_SERVICE_ACCOUNT in .env.local).' }));
+                    return;
+                  }
+
+                  if (data.mode !== 'login') {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, message: 'Unknown mode' }));
+                    return;
+                  }
+
+                  const { email = '', password = '' } = data;
+                  if (!email.trim() || !password.trim()) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, message: 'Email and password are required' }));
+                    return;
+                  }
+
+                  const snap = await db.collection('hotels').where('email', '==', email.trim()).limit(1).get();
+                  if (snap.empty) {
+                    res.writeHead(401, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, message: 'Invalid kitchen credentials' }));
+                    return;
+                  }
+                  const hotelDoc = snap.docs[0];
+                  const hotelData = hotelDoc.data();
+                  const storedPassword = hotelData.passwordHash || hotelData.password;
+
+                  const verifyPassword = (plain: string, stored: string) => {
+                    if (typeof stored !== 'string') return false;
+                    if (stored.startsWith('scrypt:')) {
+                      const [, salt, hash] = stored.split(':');
+                      if (!salt || !hash) return false;
+                      const computed = crypto.scryptSync(plain, salt, 64).toString('hex');
+                      const a = Buffer.from(computed, 'hex');
+                      const b = Buffer.from(hash, 'hex');
+                      return a.length === b.length && crypto.timingSafeEqual(a, b);
+                    }
+                    return plain === stored;
+                  };
+
+                  if (!verifyPassword(password.trim(), storedPassword)) {
+                    res.writeHead(401, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ success: false, message: 'Invalid kitchen credentials' }));
+                    return;
+                  }
+
+                  await auth.getUser(hotelDoc.id).catch(async () => {
+                    await auth.createUser({ uid: hotelDoc.id, email: hotelData.email, emailVerified: true });
+                  });
+                  await db.collection('staff').doc(hotelDoc.id).set(
+                    { email: hotelData.email, name: hotelData.name || 'Kitchen Partner', role: 'hotel', updatedAt: new Date().toISOString() },
+                    { merge: true }
+                  );
+                  const customToken = await auth.createCustomToken(hotelDoc.id);
+
+                  res.writeHead(200, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({
+                    success: true,
+                    customToken,
+                    hotel: { id: hotelDoc.id, name: hotelData.name || 'Kitchen Partner', email: hotelData.email }
+                  }));
+                } catch (e) {
+                  console.error('Local dev: hotel-auth error:', e);
+                  res.writeHead(500, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ success: false, message: 'Internal server error' }));
                 }
               });
               return;
